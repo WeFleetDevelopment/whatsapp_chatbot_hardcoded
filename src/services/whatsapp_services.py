@@ -11,6 +11,9 @@ import pytz
 from PIL import Image
 from io import BytesIO
 
+#Database of MySql
+from flask import current_app
+
 
 #Config of the api of whatsapp    
 from src.config.config_Whatsapp import messenger,logging
@@ -20,12 +23,315 @@ TEMP_DIR = os.path.join(os.path.dirname(__file__), '..', 'temp')
 
 # Define la URL base como una variable global
 #Original
-BASE_URL = 'https://fletzy-back-admin-prod-production.up.railway.app'
-BASE_URL_CHATBOT= 'https://fletzy-chatbot-support-prod-production.up.railway.app'
+BASE_URL = 'https://hoktus-api-messages-test-production.up.railway.app'
+BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-test-production.up.railway.app'
 #Prueba 1
 # BASE_URL = 'https://wefleetdeveloperbackendtest.alwaysdata.net'
 #Prueba 2
 # BASE_URL = 'https://c679-2803-c600-5117-8006-95f3-f3b0-484d-30d.ngrok-free.app'
+
+# ------------------------------------ Funciones para capturar valores en la peticion que envia whatsapp al webhook ---------------------------------
+
+def changed_field(data):
+    """
+    Identifica qué campo cambió en el payload recibido.
+    Esta función es útil para determinar si el cambio fue en mensajes, estados u otro tipo de actualización.
+    """
+    try:
+        return data["entry"][0]["changes"][0]["field"]
+    except (KeyError, IndexError):
+        return None
+
+def is_message(data):
+    """
+    Determina si el payload recibido corresponde a un mensaje.
+    Esto es crucial para procesar únicamente eventos de mensajes y no otros tipos de eventos como cambios de estado.
+    """
+    message_data = preprocess(data)
+    return "messages" in message_data
+
+def get_mobile(data):
+    """
+    Extrae el número de teléfono del remitente del mensaje.
+    Este número es esencial para identificar quién envía el mensaje y posiblemente vincularlo con un usuario registrado.
+    """
+    message_data = preprocess(data)
+    try:
+        return message_data["contacts"][0]["wa_id"]
+    except (KeyError, IndexError):
+        return None
+
+def get_name(data):
+    """
+    Extrae el nombre del remitente del mensaje.
+    Este nombre es útil para personalizar respuestas o para registros de actividad.
+    """
+    message_data = preprocess(data)
+    try:
+        return message_data["contacts"][0]["profile"]["name"]
+    except (KeyError, IndexError):
+        return None
+
+def get_message_type(data):
+    """
+    Obtiene el tipo del mensaje recibido, como texto, imagen, video, etc.
+    Saber el tipo de mensaje permite que el sistema maneje adecuadamente el contenido según su formato.
+    """
+    message_data = preprocess(data)
+    try:
+        return message_data["messages"][0]["type"]
+    except (KeyError, IndexError):
+        return None
+
+def get_message(data):
+    """
+    Extrae el mensaje de texto del payload recibido.
+    Esta es la información central que se utiliza para responder o procesar las solicitudes del usuario.
+    """
+    message_data = preprocess(data)
+    try:
+        return message_data["messages"][0]["text"]["body"]
+    except (KeyError, IndexError):
+        return None
+
+def get_interactive_response(data):
+    """Extrae la respuesta interactiva del mensaje."""
+    message_data = preprocess(data)
+    try:
+        return message_data["messages"][0]["interactive"]
+    except (KeyError, IndexError):
+        return None
+
+def get_delivery(data):
+    """Obtiene la información de entrega del mensaje."""
+    try:
+        delivery_info = data["entry"][0]["changes"][0]["value"]["delivery"]
+        return f"Delivered message ID: {delivery_info['mids']}, Status: {delivery_info['status']}"
+    except (KeyError, IndexError):
+        return None
+
+def preprocess(data):
+    """
+    Procesa el payload para facilitar el acceso a los datos contenidos.
+    Esta función simplifica la extracción de datos organizando el JSON para un acceso más directo y seguro.
+    """
+    try:
+        return data["entry"][0]["changes"][0]["value"]
+    except (KeyError, IndexError):
+        return {}
+
+
+#-------------------------------------- Funciones para enviar mensajes a WhatsApp ---------------------------------
+def send_document(token, url, document, recipient_id, caption=None, link=True, filename=None):
+    """Sends a document message to a WhatsApp user."""
+    if link:
+        data = {
+            "messaging_product": "whatsapp",
+            "to": recipient_id,
+            "type": "document",
+            "document": {"link": document, "caption": caption, "filename": filename},
+        }
+    else:
+        data = {
+            "messaging_product": "whatsapp",
+            "to": recipient_id,
+            "type": "document",
+            "document": {"id": document, "caption": caption},
+        }
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.post(url, headers=headers, json=data)
+    return response.json()
+
+def send_message(token, url, message, recipient_id, recipient_type="individual", preview_url=True):
+    """Sends a text message to a WhatsApp user."""
+    data = {
+        "messaging_product": "whatsapp",
+        "recipient_type": recipient_type,
+        "to": recipient_id,
+        "type": "text",
+        "text": {"preview_url": preview_url, "body": message},
+    }
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.post(url, headers=headers, json=data)
+    return response.json()
+
+def send_image(token, url, image, recipient_id, recipient_type="individual", caption=None, link=True):
+    """Sends an image message to a WhatsApp user."""
+    if link:
+        data = {
+            "messaging_product": "whatsapp",
+            "recipient_type": recipient_type,
+            "to": recipient_id,
+            "type": "image",
+            "image": {"link": image, "caption": caption},
+        }
+    else:
+        data = {
+            "messaging_product": "whatsapp",
+            "recipient_type": recipient_type,
+            "to": recipient_id,
+            "type": "image",
+            "image": {"id": image, "caption": caption},
+        }
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.post(url, headers=headers, json=data)
+    return response.json()
+
+def send_audio(token, url, audio, recipient_id, link=True):
+    """Sends an audio message to a WhatsApp user."""
+    if link:
+        data = {
+            "messaging_product": "whatsapp",
+            "to": recipient_id,
+            "type": "audio",
+            "audio": {"link": audio},
+        }
+    else:
+        data = {
+            "messaging_product": "whatsapp",
+            "to": recipient_id,
+            "type": "audio",
+            "audio": {"id": audio},
+        }
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.post(url, headers=headers, json=data)
+    return response.json()
+
+# Function for send message of template to user
+def send_template_message(id_bot, phone, template_name, template_parameters, template_type):
+    print("Datos obtenidos", id_bot, phone, template_name, template_parameters, template_type)
+
+    if(id_bot == None or id_bot == ''):
+        return False
+
+    #1- Obtener el identificador del telefono del chatbot de la empresa
+    identification_phone_chatbot = get_phone_chatbot_id(id_bot)
+     
+    url = f'https://graph.facebook.com/v21.0/{identification_phone_chatbot}/messages'
+    tokenChatbot = get_token_chatbot(id_bot)
+       
+    headers = { 
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {tokenChatbot}'
+    }
+
+    components = []
+
+    # Agregar parámetros de la plantilla solo si no están vacíos
+    if template_parameters:
+        components.append({
+            'type': 'body',
+            'parameters': template_parameters
+        })
+
+    # Si el tipo de plantilla es "form", agregar un componente de botón de flujo
+    if template_type == 'form':
+        components.append({
+            'type': 'button',
+            'sub_type': 'FLOW',
+            'index': 0,
+            'parameters': [
+                {
+                    'type': 'text',
+                    'text': 'Completar producción'
+                }
+            ]
+        })
+
+    data = {
+        'messaging_product': 'whatsapp',
+        'recipient_type': 'individual', 
+        'to': phone,
+        'type': 'template',
+        'template': {
+            'name': template_name,
+            'language': {
+                'code': 'es'  # Asume que el idioma es español de España, ajusta según sea necesario
+            },
+            'components': components if components else None  # Solo agregar componentes si no están vacíos
+        }
+    }
+
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+
+    if response.status_code == 200:
+        print('Mensaje de plantilla enviado correctamente')
+        return response.status_code
+    else:
+        print('Error al enviar el mensaje de plantilla') 
+        print('Mensaje de error:', response.text)  # Imprime el mensaje de error
+        return response.status_code 
+
+#-------------------------------------- Validations WhatsApp Chatbot y obtencion de datos importantes ---------------------------------
+
+# Function for validate the business chatbot and return token verified of aplication of business
+def validate_business_chatbot(id_bot):
+    if not id_bot:
+        return False
+
+    db = current_app.extensions['db']
+    cur = db.connection.cursor()
+    try:
+        query = "SELECT token_verified FROM business_whatsapp_config WHERE id_config = %s"
+        cur.execute(query, (id_bot,))
+        result = cur.fetchone()
+        if result: 
+            token_verified = result['token_verified']
+            print("Token verificado desde la base de datos:", token_verified)
+            return token_verified
+        else:
+            print("No se encontró la configuración de la empresa con el ID proporcionado.")
+            return False
+    finally:
+        cur.close()
+     
+# Funcion para obtener el token de cada chatbot de empresa
+def get_token_chatbot(id_bot):
+ 
+    if not id_bot:
+        return False
+    
+    db = current_app.extensions['db']
+    cur = db.connection.cursor()
+    try: 
+        query = "SELECT token FROM business_whatsapp_config WHERE id_config = %s"
+        cur.execute(query, (id_bot,))
+        result = cur.fetchone()  
+        if result: 
+            token_verified = result['token']
+            print('Token jwt Perma: ', token_verified)
+            return token_verified
+        else:
+            print("No se encontró la configuración de la empresa con el ID proporcionado.")
+            return False 
+    finally:
+        cur.close()
+     
+# Funcion para obtener el identificador del telefono del chatbot de la empresa mediante el id_config/id_bot
+def get_phone_chatbot_id(id_bot):
+    if not id_bot:
+        return False
+    
+    db = current_app.extensions['db']
+    cur = db.connection.cursor()
+    try: 
+        query = "SELECT identification_phone FROM business_whatsapp_config WHERE id_config = %s"
+        cur.execute(query, (id_bot,))
+        result = cur.fetchone()  
+        if result: 
+            phone = result['identification_phone']
+            print('Id del telefono: ', phone)
+            return phone
+        else:
+            print("No se encontró la configuración de la empresa con el ID proporcionado.")
+            return False 
+    finally:
+        cur.close()
+    
+ 
+
+ 
+
 
 
 #-------------------- Extra Functions ----------------------------
@@ -46,24 +352,32 @@ def generate_audio_filename():
 
 
 # Function for Obtein message of user in whatsapp and send to the back-end to save it
-def save_user_message(phone, message, name, type_message):
+def save_user_message(id_bot, phone, message, name, type_message):
 
-    print("Datos obtenidos para guardar mensaje soporte", phone, message,name,type_message)
-
+    print("Datos obtenidos para guardar mensaje soporte",id_bot, phone, message,name,type_message)
+    
+    #1- Validat si el id_config/id_bot existe para una empresa
+    validate = validate_business_chatbot(id_bot)
+    if (validate == False):
+        print("No se encontró la configuración de la empresa con el ID proporcionado.",id_bot)
+        return False 
+        
+    
     #1- Create the url to Save the message
-    url = f'{BASE_URL}/administrator/support/chat/user/save-message'
-    data = {
+    url = f'{BASE_URL}/api/messages/business/chat/user/save-message'
+    data = { 
+        'id_config': id_bot,
         'phone': phone,
         'message': message, 
         'name': name,  
         'type_message': type_message
-    }
-    token = os.getenv('TOKEN_CHATBOT_WHATSAPP_SUPPORT')
+    }  
+    token = os.getenv('TOKEN_CHATBOT_WHATSAPP_BUSINESS') 
     headers = {
         'Content-Type': 'application/json',
-        'auth-chatbot-support': token
-    }
-
+        'auth-chatbot-business': token
+    } 
+ 
     response = requests.post(url, headers=headers, json=data)
 
     if(response.status_code >= 200 and response.status_code <= 204):
@@ -71,7 +385,7 @@ def save_user_message(phone, message, name, type_message):
     else:
          print('Error al guardar el mensaje')
          print('Mensaje de error:', response.text)
-
+ 
 
 #1- Function for download file of user in whatsapp 
 def download_media(url, mime_type, custom_filename):
@@ -98,11 +412,11 @@ def download_file_with_retries(url, retries=3, delay=5):
             if attempt < retries - 1:
                 time.sleep(delay)
     return None
-
+ 
 
 #Function for send  for save it in the back-end
-def save_image_file(phone, file_info, name, type_message):
-    print("Datos obtenidos para guardar imagen", phone, file_info, name, type_message)
+def save_image_file(id_bot,phone, file_info, name, type_message):
+    print("Datos obtenidos para guardar imagen", id_bot,phone, file_info, name, type_message)
 
     file_id = file_info['id']
     file_url = messenger.query_media_url(file_id)
@@ -116,22 +430,22 @@ def save_image_file(phone, file_info, name, type_message):
     if not os.path.exists(TEMP_DIR):
         os.makedirs(TEMP_DIR)
 
-    try:
+    try: 
         response = download_file_with_retries(file_url)
         if response:
             with open(temp_path, 'wb') as out_file:
                 out_file.write(response.content)
-            send_file_to_backend(temp_path, phone, name, type_message, original_filename)
+            send_file_to_backend(id_bot,temp_path, phone, name, type_message, original_filename)
         else:
             print("Error: No se pudo descargar la imagen después de varios intentos.")
     except Exception as e:
         print(f"Error al manejar la imagen: {e}")
 
 # Function for send documents file to save it in the back-end
-def save_document_file(phone, file_info, name, type_message):
-    print("Datos obtenidos para guardar documento", phone, file_info, name, type_message)
-
-    file_id = file_info['id']
+def save_document_file(id_bot,phone, file_info, name, type_message):
+    print("Datos obtenidos para guardar documento", id_bot, phone, file_info, name, type_message)
+ 
+    file_id = file_info['id'] 
     file_url = messenger.query_media_url(file_id)
     if not file_url:
         print('Error: No se pudo obtener la URL del documento')
@@ -148,7 +462,7 @@ def save_document_file(phone, file_info, name, type_message):
         if response:
             with open(temp_path, 'wb') as out_file:
                 out_file.write(response.content)
-            send_file_to_backend(temp_path, phone, name, type_message, original_filename)
+            send_file_to_backend(id_bot,temp_path, phone, name, type_message, original_filename)
         else:
             print("Error: No se pudo descargar el documento después de varios intentos.")
     except Exception as e:
@@ -212,10 +526,10 @@ def convert_image_to_jpg(temp_path, original_filename):
 #             print(response.json())
 #     except requests.exceptions.RequestException as e:
 #         print(f"Error durante las peticiones al API de WhatsApp: {e}")
-
+ 
 
 # Función para descargar y manejar documentos e imágenes
-def handle_file(data, mobile, name, message_type, is_image):
+def handle_file(id_bot, data, mobile, name, message_type, is_image):
     # Obtener información del archivo
     file_info = messenger.get_image(data) if is_image else (
         messenger.get_document(data) if message_type == "document" else messenger.get_audio(data)
@@ -237,11 +551,12 @@ def handle_file(data, mobile, name, message_type, is_image):
     # print('original_filename', original_filename)
 
     # Paso 1: Hacer la primera petición para obtener la URL del archivo
+    token = get_token_chatbot(id_bot)
     url_query = f"https://graph.facebook.com/v21.0/{file_id}"
     headers = {
-        'Authorization': f'Bearer {os.getenv("TOKEN_CHATBOT_CONFIG")}'
+        'Authorization': f'Bearer {token}'
     }
-    try:
+    try: 
         response = requests.get(url_query, headers=headers)
         if response.status_code == 200:
             file_data = response.json()
@@ -250,14 +565,14 @@ def handle_file(data, mobile, name, message_type, is_image):
             file_url = file_data.get('url')  # Obtener la URL del archivo
 
             # Paso 2: Descargar el archivo usando la URL obtenida
-            if file_url:
+            if file_url: 
                 file_response = requests.get(file_url, headers=headers, stream=True)
-                if file_response.status_code == 200:
+                if file_response.status_code == 200: 
                     temp_path = os.path.join(TEMP_DIR, original_filename)
                     with open(temp_path, 'wb') as temp_file:
                         for chunk in file_response.iter_content(chunk_size=8192):
                             temp_file.write(chunk)
-
+                  
                     # # Verificar tamaño del archivo
                     # print(f"Archivo descargado correctamente: {temp_path}")
                     # print(f"Tamaño del archivo descargado: {os.path.getsize(temp_path)} bytes")
@@ -265,12 +580,13 @@ def handle_file(data, mobile, name, message_type, is_image):
                     # Convertir a JPG si es una imagen y no está ya en formato JPEG
                     if is_image and mime_type.split('/')[1] != 'jpeg':
                         temp_path = convert_image_to_jpg(temp_path, original_filename)
-
-                    # Enviar el archivo al backend
+  
+                    # Enviar el archivo al backend 
                     send_file_to_backend(
+                        id_bot,
                         temp_path, 
                         mobile, 
-                        name, 
+                        name,  
                         message_type, 
                         original_filename, 
                         "image/jpeg" if is_image else mime_type
@@ -285,30 +601,31 @@ def handle_file(data, mobile, name, message_type, is_image):
     except requests.exceptions.RequestException as e:
         print(f"Error durante las peticiones al API de WhatsApp: {e}")
 
-
+      
 
 # Función para enviar archivos al backend
-def send_file_to_backend(temp_path, phone, name, type_message, original_filename, mime_type):
-    url = f'{BASE_URL}/administrator/support/chat/user/save-file'
+def send_file_to_backend(id_bot, temp_path, phone, name, type_message, original_filename, mime_type):
+    url = f'{BASE_URL}/api/messages/business/chat/user/save-file'
     with open(temp_path, 'rb') as file:
-        file_content = file.read()
-        
+        file_content = file.read() 
+         
         # Verificar tamaño antes de enviar
         print(f"Tamaño del archivo a enviar al backend: {len(file_content)} bytes")
         
         files = {'files': (original_filename, file_content, mime_type)}
         data = {
+            'id_bot': id_bot, 
             'phone': phone,
             'name': name,
             'type_message': type_message,
             'file_name': original_filename,
             'file_type': mime_type
         }
-        token = os.getenv('TOKEN_CHATBOT_WHATSAPP_SUPPORT')
+        token = os.getenv('TOKEN_CHATBOT_WHATSAPP_BUSINESS')
         headers = {
-            'auth-chatbot-support': token
+            'auth-chatbot-business': token
         }
-
+ 
         try:
             response = requests.post(url, files=files, headers=headers, data=data)
             print(f"Response status code: {response.status_code}")
@@ -333,19 +650,19 @@ def get_form_data(data):
 
 
 # Función para registrar la cuenta del usuario a través del formulario de WhatsApp
-def registerAccountUser(phone, data):
+def registerAccountUser(id_bot,phone, data):
     try:
         # Imprimir datos recibidos para diagnóstico
-        print("Datos obtenidos para guardar la creación de cuenta de usuario:", phone, data)
+        print("Datos obtenidos para guardar la creación de cuenta de usuario:", id_bot,phone, data)
 
         # Crear la URL y obtener el token del entorno
-        url = f'{BASE_URL}/administrator/support/chat/user/create-account'
-        token = os.getenv('TOKEN_CHATBOT_WHATSAPP_SUPPORT')
-
+        url = f'{BASE_URL}/api/messages/business/chat/user/create-account'
+        token = os.getenv('TOKEN_CHATBOT_WHATSAPP_BUSINESS')
+      
         # Encabezados para la solicitud HTTP
         headers = {
             'Content-Type': 'application/json',
-            'auth-chatbot-support': token
+            'auth-chatbot-business': token
         }
 
         # Preparar datos a enviar
@@ -390,64 +707,6 @@ def registerAccountUser(phone, data):
     
 
 
-# Function for send message of template to user
-def send_template_message(phone, template_name, template_parameters, template_type):
-    print("Datos obtenidos", phone, template_name, template_parameters, template_type)
 
-    FROM_PHONE_NUMBER_ID = '439445745924654'  # Reemplaza esto con tu ID de número de teléfono de WhatsApp
-    url = f'https://graph.facebook.com/v21.0/{FROM_PHONE_NUMBER_ID}/messages'
-    tokenChatbot = os.getenv('TOKEN_CHATBOT_CONFIG')
-    
-    headers = { 
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {tokenChatbot}'
-    }
-
-    components = []
-
-    # Agregar parámetros de la plantilla solo si no están vacíos
-    if template_parameters:
-        components.append({
-            'type': 'body',
-            'parameters': template_parameters
-        })
-
-    # Si el tipo de plantilla es "form", agregar un componente de botón de flujo
-    if template_type == 'form':
-        components.append({
-            'type': 'button',
-            'sub_type': 'FLOW',
-            'index': 0,
-            'parameters': [
-                {
-                    'type': 'text',
-                    'text': 'Completar producción'
-                }
-            ]
-        })
-
-    data = {
-        'messaging_product': 'whatsapp',
-        'recipient_type': 'individual', 
-        'to': phone,
-        'type': 'template',
-        'template': {
-            'name': template_name,
-            'language': {
-                'code': 'es'  # Asume que el idioma es español de España, ajusta según sea necesario
-            },
-            'components': components if components else None  # Solo agregar componentes si no están vacíos
-        }
-    }
-
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-
-    if response.status_code == 200:
-        print('Mensaje de plantilla enviado correctamente')
-        return response.status_code
-    else:
-        print('Error al enviar el mensaje de plantilla') 
-        print('Mensaje de error:', response.text)  # Imprime el mensaje de error
-        return response.status_code
 
 #------ Nuevas funciones -------------

@@ -11,7 +11,7 @@ from src.database.mysql.mysql_config import Database
 def create_app():
     app = Flask(__name__)
     # CORS(app, resources={r"/*": {"origins": ["http://localhost:9302","https://fletzy-back-admin-test-production.up.railway.app"]}}, supports_credentials=True)
-    CORS(app, resources={r"/*": {"origins": ["https://fletzy-back-admin-prod-production.up.railway.app","http://localhost:9000"]}}, supports_credentials=True)
+    CORS(app, resources={r"/*": {"origins": ["https://hoktus-api-messages-test-production.up.railway.app","http://localhost:9000"]}}, supports_credentials=True)
     
     # Definir la ruta de la carpeta temporal
     TEMP_DIR = os.path.join(os.path.dirname(__file__), 'temp')

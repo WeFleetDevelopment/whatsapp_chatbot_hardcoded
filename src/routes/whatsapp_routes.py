@@ -4,7 +4,7 @@ import os
 import requests
 import pytz
 #Config of the api of whatsapp    
-from src.config.config_Whatsapp import messenger,logging
+# from src.config.config_Whatsapp import messenger,logging
 
 # Image
 from PIL import Image
@@ -13,7 +13,10 @@ from io import BytesIO
 
 #Services of WhtasApp
 from src.services.whatsapp_services import ( 
-    save_user_message,send_template_message,handle_file,get_form_data,registerAccountUser,save_image_file,save_document_file,
+    save_user_message,send_template_message,handle_file,get_form_data,registerAccountUser,validate_business_chatbot,get_name,
+    get_message,get_mobile,get_message_type,changed_field,is_message,get_delivery,get_interactive_response,
+    
+    save_image_file,save_document_file,
     send_file_to_backend,download_file_with_retries,TEMP_DIR,generate_filename
 )
 #Messages of the bot for send
@@ -23,13 +26,24 @@ from src.utils.messages import message1, message2, message3, message4, message5,
 from src.utils.utils import button_reply,comuna_en_lista
 
 whatsapp_routes = Blueprint('webhook_whatsapp', __name__)
-
+ 
 # Ruta para recibir mensajes / 
 @whatsapp_routes.route("/whatsapp/webhook", methods=["POST", "GET"])
 def webhook_whatsapp():
-    # Verificar el token de verificación
+     
+    #1- Verificar el id de la configuracion de la empresa, que exista en la url
+    id_bot = request.args.get('id_bot', None)
+    if not id_bot:
+        return "Missing configuration ID", 400
+    
+    #2- Validamos que la empresa exista
+    token_verified = validate_business_chatbot(id_bot)
+    if not token_verified:
+        return "Invalid configuration ID", 400
+    
+    #3-  Verificar el token de verificación
     if request.method == "GET":
-        verify_token = os.getenv('TOKEN_VERIFIED')
+        verify_token = token_verified
         print("Token de verificacion", verify_token)
        
         if request.args.get('hub.verify_token') == verify_token: 
@@ -39,52 +53,48 @@ def webhook_whatsapp():
 
     # Handle Webhook Subscriptions
     data = request.get_json()
-    changed_field = messenger.changed_field(data)
-    print("Mensaje Recibido")
-    if changed_field == "messages":
-        new_message = messenger.is_message(data)
-        if new_message:
-            mobile = messenger.get_mobile(data)
-            name = messenger.get_name(data)  # Capturar el nombre del usuario
-            message_type = messenger.get_message_type(data)
-            debug_message = "TJN2SVVG"
+    if changed_field(data) == "messages":
+        if is_message(data):
+            mobile = get_mobile(data)
+            name = get_name(data)
+            message_type = get_message_type(data)
+            message = get_message(data)
+            print(f"New Message; sender:{mobile} name:{name} type:{message_type}, message:{message}")
+              
+            debug_message = "TJN2SVVG" 
+            if message_type == "text":     
+                debug_message = get_message(data) 
+               
+            #1-  Capturar  mensajes de Texto    
             if message_type == "text":
-                debug_message = messenger.get_message(data)
-            logging.info(
-                f"New Message; sender:{mobile} name:{name} type:{message_type}"
-            )
-            print("Tipo de mensaje", message_type)
-
-            #1-  Capturar mensajes de Texto 
-            if message_type == "text":
-                message_received = messenger.get_message(data)
+                message_received = get_message(data)  
                 print("Mensaje recibido", message_received)
                 if message_received:  # Verificar si el mensaje recibido no está vacío
-                    save_user_message(mobile, message_received, name,message_type)  # Pasar el nombre del usuario
-            
-            #2-  Capturar mensajes, como Botones 
+                    save_user_message(id_bot, mobile, message_received, name,message_type)  # Pasar el nombre del usuario
+             
+            #2-  Capturar mensajes, como Botones  
             if message_type == "button":
                 # Capturar el texto del botón cuando se presiona y pasarlo como mensaje a "save_user_message"
                 message_received = button_reply(data)
                 print("Mensaje Obtenido", message_received)
                 if message_received:  # Verificar si el mensaje recibido no está vacío
-                    save_user_message(mobile, message_received, name, message_type)  # Pasar el nombre del usuario
+                    save_user_message(id_bot,mobile, message_received, name, message_type)  # Pasar el nombre del usuario
 
             # Capturar mensajes con Formularios interactivos
             if message_type == "interactive":
                 # Capturar el texto del formulario y pasarlo como mensaje a "save_user_message"
-                message_received = messenger.get_interactive_response(data)
-                print("Mensaje Obtenido",message_received)
+                message_received = get_interactive_response(data)
+                print("Mensaje Obtenido",message_received) 
                 if message_received:  # Verificar si el mensaje recibido no está vacío
                     form_data = get_form_data(message_received)
                     registerAccountUser(mobile, form_data)  
 
-             
+              
 
             #3-  Capturar mensajes con Stickers
             if message_type == "sticker":
                 if message_received:
-                    save_user_message(mobile, message_received, name,message_type)
+                    save_user_message(id_bot,mobile, message_received, name,message_type)
                      
             # Capturar y enviar documentos
             elif message_type == "document":
@@ -98,12 +108,108 @@ def webhook_whatsapp():
             elif message_type == "audio":
                 handle_file(data, mobile, name, message_type, is_image=False)
          
-            delivery = messenger.get_delivery(data)
+            delivery = get_delivery(data)
             if delivery:
-                logging.info(f"Message : {delivery}")
+                print(f"Message : {delivery}")
             else:
-                logging.info("No new message")
+                print("No new message")
     return "OK", 200
+
+
+
+# # Ruta para recibir mensajes / 
+# @whatsapp_routes.route("/whatsapp/webhook", methods=["POST", "GET"])
+# def webhook_whatsapp():
+     
+#     #1- Verificar el id de la configuracion de la empresa, que exista en la url
+#     id_bot = request.args.get('id_bot', None)
+#     if not id_bot:
+#         return "Missing configuration ID", 400
+    
+#     #2- Validamos que la empresa exista
+#     token_verified = validate_business_chatbot(id_bot)
+#     if not token_verified:
+#         return "Invalid configuration ID", 400
+    
+#     #3-  Verificar el token de verificación
+#     if request.method == "GET":
+#         verify_token = token_verified
+#         print("Token de verificacion", verify_token)
+       
+#         if request.args.get('hub.verify_token') == verify_token: 
+#             return request.args.get('hub.challenge')
+#         else:
+#             return "Invalid verification token"
+
+#     # Handle Webhook Subscriptions
+#     data = request.get_json()
+#     changed_field = messenger.changed_field(data)
+#     print("Mensaje Recibido")
+#     if changed_field == "messages":
+#         new_message = messenger.is_message(data)
+#         if new_message:  
+#             mobile = messenger.get_mobile(data) 
+#             name = messenger.get_name(data)  # Capturar el nombre del usuario
+#             message_type = messenger.get_message_type(data) # Capturar el tipo de mensaje
+             
+#             debug_message = "TJN2SVVG"
+#             if message_type == "text":
+#                 debug_message = messenger.get_message(data)
+#             logging.info( 
+#                 f"New Message; sender:{mobile} name:{name} type:{message_type}"
+#             )
+#             print("Tipo de mensaje", message_type)
+             
+#             #1-  Capturar mensajes de Texto  
+#             if message_type == "text":
+#                 message_received = messenger.get_message(data)
+#                 print("Mensaje recibido", message_received)
+#                 if message_received:  # Verificar si el mensaje recibido no está vacío
+#                     save_user_message(id_bot, mobile, message_received, name,message_type)  # Pasar el nombre del usuario
+             
+#             #2-  Capturar mensajes, como Botones 
+#             if message_type == "button":
+#                 # Capturar el texto del botón cuando se presiona y pasarlo como mensaje a "save_user_message"
+#                 message_received = button_reply(data)
+#                 print("Mensaje Obtenido", message_received)
+#                 if message_received:  # Verificar si el mensaje recibido no está vacío
+#                     save_user_message(id_bot,mobile, message_received, name, message_type)  # Pasar el nombre del usuario
+
+#             # Capturar mensajes con Formularios interactivos
+#             if message_type == "interactive":
+#                 # Capturar el texto del formulario y pasarlo como mensaje a "save_user_message"
+#                 message_received = messenger.get_interactive_response(data)
+#                 print("Mensaje Obtenido",message_received)
+#                 if message_received:  # Verificar si el mensaje recibido no está vacío
+#                     form_data = get_form_data(message_received)
+#                     registerAccountUser(mobile, form_data)  
+
+             
+
+#             #3-  Capturar mensajes con Stickers
+#             if message_type == "sticker":
+#                 if message_received:
+#                     save_user_message(id_bot,mobile, message_received, name,message_type)
+                     
+#             # Capturar y enviar documentos
+#             elif message_type == "document":
+#                 handle_file(data, mobile, name, message_type, is_image=False)
+
+#             # Capturar y enviar imágenes
+#             elif message_type == "image":
+#                 handle_file(data, mobile, name, message_type, is_image=True)
+
+#             # Capturar y enviar audios
+#             elif message_type == "audio":
+#                 handle_file(data, mobile, name, message_type, is_image=False)
+         
+#             delivery = messenger.get_delivery(data)
+#             if delivery:
+#                 logging.info(f"Message : {delivery}")
+#             else:
+#                 logging.info("No new message")
+#     return "OK", 200
+
 
 
 
@@ -113,16 +219,16 @@ def send_message():
     data = request.json
     if "recipient" not in data or "message" not in data:
         return jsonify({"error": "El JSON debe contener 'recipient' y 'message'"}), 400
-    
+    id_bot = data["id_config"]
     recipient = data["recipient"]
-    message = data["message"]
-    try:
-        messenger.send_message(message, recipient)
+    message = data["message"] 
+    try: 
+        # messenger.send_message(message, recipient)
         print("Mensaje enviado de Fletzy al usuario", recipient, message)
         return jsonify({"success": True, "message": f"Mensaje enviado correctamente al numero {recipient}"}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+        return jsonify({"error": str(e)}), 500 
+  
 
 # Ruta para enviar archivos personalizados o Default dentro del protocolo de 24 Horas
 @whatsapp_routes.route('/whatsapp/send_file/<type>', methods=["POST"])
@@ -131,28 +237,31 @@ def send_file(type):
     if "recipient" not in data or "file_url" not in data:
         return jsonify({"error": "El JSON debe contener 'recipient' y 'file_url'"}), 400
     
-    recipient = data["recipient"]
+    id_bot = data["id_config"]
+    recipient = data["recipient"] 
     file_url = data["file_url"]
-    name_file = data["name_file"]
+    name_file = data["name_file"] 
     print("Datos del archivo recibido", recipient, file_url, name_file, type)
     
     try:
         if type == "document":
-            messenger.send_document(file_url, recipient, name_file)
-        elif type == "image":
-            messenger.send_image(file_url, recipient)
-
-        elif type == "audio":
             print("data", data)
-            messenger.send_audio(file_url, recipient, link=True)
-            
+            # messenger.send_document(file_url, recipient, name_file)
+        elif type == "image":
+            print("data", data)
+            # messenger.send_image(file_url, recipient)
+  
+        elif type == "audio": 
+            print("data", data) 
+            # messenger.send_audio(file_url, recipient, link=True)
+             
         else:
             return jsonify({"error": "Tipo de archivo no soportado"}), 400
         
         return jsonify({"success": True, "message": f"Archivo enviado correctamente al numero {recipient}"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
- 
+  
 
 #------------------------- Rutas para la comunicacion del servidor que guardara y enviara los mensajes --------------- #
 
@@ -162,14 +271,15 @@ def route_send_template_message():
     data = request.json
     if "phone" not in data or "template_name" not in data:
         return jsonify({"error": "El JSON debe contener 'phone' y 'template_name'"}), 400
-    
-    phone = data["phone"]
+     
+    id_bot = data["id_config"]
+    phone = data["phone"] 
     template_name = data["template_name"]
     template_parameters = data.get("template_parameters", [])
     template_type = data.get("template_type", None)
     
     try:
-        response = send_template_message(phone, template_name, template_parameters, template_type)
+        response = send_template_message(id_bot,phone, template_name, template_parameters, template_type)
         return jsonify({"success": True, "response": response}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
