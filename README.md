@@ -26,7 +26,7 @@ Para instalar las dependencias necesarias, ejecuta los siguientes comandos:
 pip install heyoo
 pip install unidecode
 pip install flask
-pip install flask-cors
+pip install flask-cors 
 pip install gunicorn  # Para iniciar el servidor
 
 
