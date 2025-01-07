@@ -4,13 +4,13 @@ import os
 
 #Config of MySql Original
 class MySqlConfig(object):
-     MYSQL_HOST =  '193.203.175.68'
-     MYSQL_USER = 'u823376988_fletzy_bd_test'
-     MYSQL_PASSWORD = 'ajsid9ajd90aj82j9jsadjasjd82hjtdkjasSDS?'
-     MYSQL_DB = 'u823376988_fletzy_test'
+     MYSQL_HOST =  os.getenv('DB_HOST') 
+     MYSQL_USER = os.getenv('DB_USERNAME')
+     MYSQL_PASSWORD = os.getenv('DB_PASSWORD')
+     MYSQL_DB = os.getenv('DB_DATABASE')
 
 # MYSQL_HOST = 'srv1311.hstgr.io'  
- 
+
 
   
  
