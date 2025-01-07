@@ -278,7 +278,7 @@ def validate_business_chatbot(id_bot):
         db.session.commit()
         
         if result:
-            token_verified = result['token_verified']
+            token_verified = result[0]  # Access the first element of the tuple
             print("Token verificado desde la base de datos:", token_verified)
             return token_verified
         else:
@@ -288,12 +288,12 @@ def validate_business_chatbot(id_bot):
         db.session.rollback()
         print("Error accessing database:", e)
         return False
-      
-# Funcion para obtener el token de cada chatbot de empresa
+
+# Function to obtain the token of each business chatbot
 def get_token_chatbot(id_bot):
     if not id_bot:
         return False
-    
+
     try: 
         result = db.session.execute(
             text("SELECT token FROM business_whatsapp_config WHERE id_config = :id"),
@@ -302,7 +302,7 @@ def get_token_chatbot(id_bot):
         db.session.commit()
 
         if result: 
-            token = result['token']
+            token = result[0]  # Access the first element of the tuple
             print('Token jwt Perma: ', token)
             return token
         else:
@@ -312,12 +312,12 @@ def get_token_chatbot(id_bot):
         db.session.rollback()
         print("Error accessing database:", e)
         return False
-     
-# Funcion para obtener el identificador del telefono del chatbot de la empresa mediante el id_config/id_bot
+
+# Function to obtain the phone identifier of the business chatbot via the id_config/id_bot
 def get_phone_chatbot_id(id_bot):
     if not id_bot:
         return False
-    
+
     try: 
         result = db.session.execute(
             text("SELECT identification_phone FROM business_whatsapp_config WHERE id_config = :id"),
@@ -326,7 +326,7 @@ def get_phone_chatbot_id(id_bot):
         db.session.commit()
 
         if result: 
-            phone = result['identification_phone']
+            phone = result[0]  # Access the first element of the tuple
             print('Id del teléfono: ', phone)
             return phone
         else:
@@ -336,12 +336,12 @@ def get_phone_chatbot_id(id_bot):
         db.session.rollback()
         print("Error accessing database:", e)
         return False
-    
- 
 
  
 
+ 
 
+  
 
 #-------------------- Extra Functions ----------------------------
 def generate_filename():
