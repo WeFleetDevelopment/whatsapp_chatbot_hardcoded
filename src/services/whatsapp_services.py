@@ -15,8 +15,8 @@ from io import BytesIO
 from flask import current_app
 
 
-#Config of the api of whatsapp    
-from src.config.config_Whatsapp import messenger,logging
+# #Config of the api of whatsapp    
+# from src.config.config_Whatsapp import messenger,logging
 
 # Carpeta Temp
 TEMP_DIR = os.path.join(os.path.dirname(__file__), '..', 'temp')
@@ -415,58 +415,58 @@ def download_file_with_retries(url, retries=3, delay=5):
  
 
 #Function for send  for save it in the back-end
-def save_image_file(id_bot,phone, file_info, name, type_message):
-    print("Datos obtenidos para guardar imagen", id_bot,phone, file_info, name, type_message)
+# def save_image_file(id_bot,phone, file_info, name, type_message):
+#     print("Datos obtenidos para guardar imagen", id_bot,phone, file_info, name, type_message)
 
-    file_id = file_info['id']
-    file_url = messenger.query_media_url(file_id)
-    if not file_url:
-        print('Error: No se pudo obtener la URL de la imagen')
-        return
+#     file_id = file_info['id']
+#     file_url = messenger.query_media_url(file_id)
+#     if not file_url:
+#         print('Error: No se pudo obtener la URL de la imagen')
+#         return
  
-    original_filename = file_info.get('filename', 'imagen_sin_nombre.jpeg')
-    temp_path = os.path.join(TEMP_DIR, original_filename)
+#     original_filename = file_info.get('filename', 'imagen_sin_nombre.jpeg')
+#     temp_path = os.path.join(TEMP_DIR, original_filename)
 
-    if not os.path.exists(TEMP_DIR):
-        os.makedirs(TEMP_DIR)
+#     if not os.path.exists(TEMP_DIR):
+#         os.makedirs(TEMP_DIR)
 
-    try: 
-        response = download_file_with_retries(file_url)
-        if response:
-            with open(temp_path, 'wb') as out_file:
-                out_file.write(response.content)
-            send_file_to_backend(id_bot,temp_path, phone, name, type_message, original_filename)
-        else:
-            print("Error: No se pudo descargar la imagen después de varios intentos.")
-    except Exception as e:
-        print(f"Error al manejar la imagen: {e}")
+#     try: 
+#         response = download_file_with_retries(file_url)
+#         if response:
+#             with open(temp_path, 'wb') as out_file:
+#                 out_file.write(response.content)
+#             send_file_to_backend(id_bot,temp_path, phone, name, type_message, original_filename)
+#         else:
+#             print("Error: No se pudo descargar la imagen después de varios intentos.")
+#     except Exception as e:
+#         print(f"Error al manejar la imagen: {e}")
 
 # Function for send documents file to save it in the back-end
-def save_document_file(id_bot,phone, file_info, name, type_message):
-    print("Datos obtenidos para guardar documento", id_bot, phone, file_info, name, type_message)
+# def save_document_file(id_bot,phone, file_info, name, type_message):
+#     print("Datos obtenidos para guardar documento", id_bot, phone, file_info, name, type_message)
  
-    file_id = file_info['id'] 
-    file_url = messenger.query_media_url(file_id)
-    if not file_url:
-        print('Error: No se pudo obtener la URL del documento')
-        return
+#     file_id = file_info['id'] 
+#     file_url = messenger.query_media_url(file_id)
+#     if not file_url:
+#         print('Error: No se pudo obtener la URL del documento')
+#         return
 
-    original_filename = file_info.get('filename', 'documento_sin_nombre.pdf')
-    temp_path = os.path.join(TEMP_DIR, original_filename)
+#     original_filename = file_info.get('filename', 'documento_sin_nombre.pdf')
+#     temp_path = os.path.join(TEMP_DIR, original_filename)
 
-    if not os.path.exists(TEMP_DIR):
-        os.makedirs(TEMP_DIR)
+#     if not os.path.exists(TEMP_DIR):
+#         os.makedirs(TEMP_DIR)
 
-    try:
-        response = download_file_with_retries(file_url)
-        if response:
-            with open(temp_path, 'wb') as out_file:
-                out_file.write(response.content)
-            send_file_to_backend(id_bot,temp_path, phone, name, type_message, original_filename)
-        else:
-            print("Error: No se pudo descargar el documento después de varios intentos.")
-    except Exception as e:
-        print(f"Error al manejar el documento: {e}")
+#     try:
+#         response = download_file_with_retries(file_url)
+#         if response:
+#             with open(temp_path, 'wb') as out_file:
+#                 out_file.write(response.content)
+#             send_file_to_backend(id_bot,temp_path, phone, name, type_message, original_filename)
+#         else:
+#             print("Error: No se pudo descargar el documento después de varios intentos.")
+#     except Exception as e:
+#         print(f"Error al manejar el documento: {e}")
 
 
 
@@ -530,76 +530,79 @@ def convert_image_to_jpg(temp_path, original_filename):
 
 # Función para descargar y manejar documentos e imágenes
 def handle_file(id_bot, data, mobile, name, message_type, is_image):
-    # Obtener información del archivo
-    file_info = messenger.get_image(data) if is_image else (
-        messenger.get_document(data) if message_type == "document" else messenger.get_audio(data)
-    )
-    file_id = file_info['id']  # ID del archivo
-    mime_type = file_info['mime_type']
-
-    # Generar nombres personalizados para los archivos
-    if message_type == "audio":
-        original_filename = generate_audio_filename()
-    elif is_image:
-        original_filename = generate_filename() + ".jpg"
-    else:
-        original_filename = file_info.get('filename', "archivo_desconocido.pdf")
     
-    # print('file_info', file_info)
-    # print('file_id', file_id)
-    # print('mime_type', mime_type)
-    # print('original_filename', original_filename)
+    print("Datos obtenidos para manejar archivo:", id_bot, data, mobile, name, message_type, is_image)
+     
+    # Obtener información del archivo  
+    # file_info = messenger.get_image(data) if is_image else (
+    #     messenger.get_document(data) if message_type == "document" else get_audio(data)
+    # )
+    # file_id = file_info['id']  # ID del archivo 
+    # mime_type = file_info['mime_type'] 
 
-    # Paso 1: Hacer la primera petición para obtener la URL del archivo
-    token = get_token_chatbot(id_bot)
-    url_query = f"https://graph.facebook.com/v21.0/{file_id}"
-    headers = {
-        'Authorization': f'Bearer {token}'
-    }
-    try: 
-        response = requests.get(url_query, headers=headers)
-        if response.status_code == 200:
-            file_data = response.json()
-            print("Primera petición exitosa. Datos obtenidos:")
-            print(file_data)
-            file_url = file_data.get('url')  # Obtener la URL del archivo
+    # # Generar nombres personalizados para los archivos
+    # if message_type == "audio":
+    #     original_filename = generate_audio_filename()
+    # elif is_image:
+    #     original_filename = generate_filename() + ".jpg"
+    # else:
+    #     original_filename = file_info.get('filename', "archivo_desconocido.pdf")
+    
+    # # print('file_info', file_info)
+    # # print('file_id', file_id)
+    # # print('mime_type', mime_type)
+    # # print('original_filename', original_filename)
 
-            # Paso 2: Descargar el archivo usando la URL obtenida
-            if file_url: 
-                file_response = requests.get(file_url, headers=headers, stream=True)
-                if file_response.status_code == 200: 
-                    temp_path = os.path.join(TEMP_DIR, original_filename)
-                    with open(temp_path, 'wb') as temp_file:
-                        for chunk in file_response.iter_content(chunk_size=8192):
-                            temp_file.write(chunk)
+    # # Paso 1: Hacer la primera petición para obtener la URL del archivo
+    # token = get_token_chatbot(id_bot)
+    # url_query = f"https://graph.facebook.com/v21.0/{file_id}"
+    # headers = {
+    #     'Authorization': f'Bearer {token}'
+    # }
+    # try: 
+    #     response = requests.get(url_query, headers=headers)
+    #     if response.status_code == 200:
+    #         file_data = response.json()
+    #         print("Primera petición exitosa. Datos obtenidos:")
+    #         print(file_data)
+    #         file_url = file_data.get('url')  # Obtener la URL del archivo
+
+    #         # Paso 2: Descargar el archivo usando la URL obtenida
+    #         if file_url: 
+    #             file_response = requests.get(file_url, headers=headers, stream=True)
+    #             if file_response.status_code == 200: 
+    #                 temp_path = os.path.join(TEMP_DIR, original_filename)
+    #                 with open(temp_path, 'wb') as temp_file:
+    #                     for chunk in file_response.iter_content(chunk_size=8192):
+    #                         temp_file.write(chunk)
                   
-                    # # Verificar tamaño del archivo
-                    # print(f"Archivo descargado correctamente: {temp_path}")
-                    # print(f"Tamaño del archivo descargado: {os.path.getsize(temp_path)} bytes")
+    #                 # # Verificar tamaño del archivo
+    #                 # print(f"Archivo descargado correctamente: {temp_path}")
+    #                 # print(f"Tamaño del archivo descargado: {os.path.getsize(temp_path)} bytes")
 
-                    # Convertir a JPG si es una imagen y no está ya en formato JPEG
-                    if is_image and mime_type.split('/')[1] != 'jpeg':
-                        temp_path = convert_image_to_jpg(temp_path, original_filename)
+    #                 # Convertir a JPG si es una imagen y no está ya en formato JPEG
+    #                 if is_image and mime_type.split('/')[1] != 'jpeg':
+    #                     temp_path = convert_image_to_jpg(temp_path, original_filename)
   
-                    # Enviar el archivo al backend 
-                    send_file_to_backend(
-                        id_bot,
-                        temp_path, 
-                        mobile, 
-                        name,  
-                        message_type, 
-                        original_filename, 
-                        "image/jpeg" if is_image else mime_type
-                    )
-                else:
-                    print(f"Error al descargar el archivo. Código de estado: {file_response.status_code}")
-            else:
-                print("No se pudo obtener la URL del archivo en la primera petición.")
-        else:
-            print(f"Error al obtener datos del archivo. Código de estado: {response.status_code}")
-            print(response.json())
-    except requests.exceptions.RequestException as e:
-        print(f"Error durante las peticiones al API de WhatsApp: {e}")
+    #                 # Enviar el archivo al backend 
+    #                 send_file_to_backend(
+    #                     id_bot,
+    #                     temp_path, 
+    #                     mobile, 
+    #                     name,  
+    #                     message_type, 
+    #                     original_filename, 
+    #                     "image/jpeg" if is_image else mime_type
+    #                 )
+    #             else:
+    #                 print(f"Error al descargar el archivo. Código de estado: {file_response.status_code}")
+    #         else:
+    #             print("No se pudo obtener la URL del archivo en la primera petición.")
+    #     else:
+    #         print(f"Error al obtener datos del archivo. Código de estado: {response.status_code}")
+    #         print(response.json())
+    # except requests.exceptions.RequestException as e:
+    #     print(f"Error durante las peticiones al API de WhatsApp: {e}")
 
       
 

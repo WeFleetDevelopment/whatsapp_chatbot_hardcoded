@@ -15,10 +15,7 @@ from io import BytesIO
 from src.services.whatsapp_services import ( 
     save_user_message,send_template_message,handle_file,get_form_data,registerAccountUser,validate_business_chatbot,get_name,
     get_message,get_mobile,get_message_type,changed_field,is_message,get_delivery,get_interactive_response,
-    
-    save_image_file,save_document_file,
-    send_file_to_backend,download_file_with_retries,TEMP_DIR,generate_filename
-)
+)  
 #Messages of the bot for send
 # from src.utils.messages import msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10, msgcomunaerror, msg11, msg12, msg13, msg14, msg15, msg16, msg17, msg18, msgpresencial, msgpresencialconfirmacion_no, msgpresencialconfirmacion_si, msg19, msg20, msg21, msg22, msg23, msg24, msg25, msg26, msg27, msg28, msg29, certificadopeoneta, msg30, msg31, msg32, msg33, msg34, msg35, msg36, msg37, msg38, msg39, msg40, msg41, msg42, msg43, msg44, msg45, documento_corregido,
 from src.utils.messages import message1, message2, message3, message4, message5, urlWeFleet ,message_error1, message_error2
