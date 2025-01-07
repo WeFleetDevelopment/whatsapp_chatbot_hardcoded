@@ -6,10 +6,11 @@ from flask_cors import CORS
 from src.routes.whatsapp_routes import whatsapp_routes
 
 #Data Base of MySql
-from src.database.mysql.mysql_config import Database
-
+from src.database.mysql.mysql_config import db,Config
+ 
 def create_app():
     app = Flask(__name__)
+    app.config.from_object(Config)
     # CORS(app, resources={r"/*": {"origins": ["http://localhost:9302","https://fletzy-back-admin-test-production.up.railway.app"]}}, supports_credentials=True)
     CORS(app, resources={r"/*": {"origins": ["https://hoktus-api-messages-test-production.up.railway.app","http://localhost:9000"]}}, supports_credentials=True)
     
@@ -22,7 +23,7 @@ def create_app():
     
         
     # Inicializamos la base de datos de MySql
-    db = Database()
+    # Inicializar SQLAlchemy
     db.init_app(app)
     
     # Inicializamos las rutas

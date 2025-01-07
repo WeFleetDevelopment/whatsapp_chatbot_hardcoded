@@ -1,26 +1,8 @@
-# mysql_config.py
-from flask_mysqldb import MySQL
+from flask_sqlalchemy import SQLAlchemy
 import os
 
-#Config of MySql Original
-class MySqlConfig(object):
-     MYSQL_HOST =  os.getenv('DB_HOST') 
-     MYSQL_USER = os.getenv('DB_USERNAME')
-     MYSQL_PASSWORD = os.getenv('DB_PASSWORD')
-     MYSQL_DB = os.getenv('DB_DATABASE')
+db = SQLAlchemy()
 
-# MYSQL_HOST = 'srv1311.hstgr.io'  
-
-
-  
- 
-# Init MySql
-class Database:
-    def __init__(self):
-        self.mysql = None
-
-    def init_app(self, app):
-        app.config.from_object(MySqlConfig)
-        self.mysql = MySQL(app)
-        app.extensions['db'] = self.mysql
- 
+class Config:
+    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{os.getenv("DB_USERNAME")}:{os.getenv("DB_PASSWORD")}@{os.getenv("DB_HOST")}/{os.getenv("DB_DATABASE")}'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
