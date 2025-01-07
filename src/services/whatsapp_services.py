@@ -14,10 +14,11 @@ from io import BytesIO
 #Database of MySql
 from flask import current_app 
 from sqlalchemy import text
+from src.database.mysql.mysql_config import db
 
 # #Config of the api of whatsapp    
-# from src.config.config_Whatsapp import messenger,logging
-
+# from src.config.config_Whatsapp impor t messenger,logging
+ 
 # Carpeta Temp
 TEMP_DIR = os.path.join(os.path.dirname(__file__), '..', 'temp')
 
@@ -269,39 +270,47 @@ def validate_business_chatbot(id_bot):
     if not id_bot:
         return False
 
-    db = current_app.extensions['db']
-    with db.engine.connect() as connection:
-        result = connection.execute(
+    try:
+        result = db.session.execute(
             text("SELECT token_verified FROM business_whatsapp_config WHERE id_config = :id"),
             {'id': id_bot}
         ).fetchone()
+        db.session.commit()
         
-    if result:
-        token_verified = result['token_verified']
-        print("Token verificado desde la base de datos:", token_verified)
-        return token_verified
-    else:
-        print("No se encontró la configuración de la empresa con el ID proporcionado.")
+        if result:
+            token_verified = result['token_verified']
+            print("Token verificado desde la base de datos:", token_verified)
+            return token_verified
+        else:
+            print("No se encontró la configuración de la empresa con el ID proporcionado.")
+            return False
+    except Exception as e:
+        db.session.rollback()
+        print("Error accessing database:", e)
         return False
-     
+      
 # Funcion para obtener el token de cada chatbot de empresa
 def get_token_chatbot(id_bot):
     if not id_bot:
         return False
     
-    db = current_app.extensions['db']
-    with db.engine.connect() as connection:
-        result = connection.execute(
+    try: 
+        result = db.session.execute(
             text("SELECT token FROM business_whatsapp_config WHERE id_config = :id"),
             {'id': id_bot}
         ).fetchone()
+        db.session.commit()
 
-    if result:
-        token = result['token']
-        print('Token jwt Perma: ', token)
-        return token
-    else:
-        print("No se encontró la configuración de la empresa con el ID proporcionado.")
+        if result: 
+            token = result['token']
+            print('Token jwt Perma: ', token)
+            return token
+        else:
+            print("No se encontró la configuración de la empresa con el ID proporcionado.")
+            return False
+    except Exception as e:
+        db.session.rollback()
+        print("Error accessing database:", e)
         return False
      
 # Funcion para obtener el identificador del telefono del chatbot de la empresa mediante el id_config/id_bot
@@ -309,19 +318,23 @@ def get_phone_chatbot_id(id_bot):
     if not id_bot:
         return False
     
-    db = current_app.extensions['db']
-    with db.engine.connect() as connection:
-        result = connection.execute(
+    try: 
+        result = db.session.execute(
             text("SELECT identification_phone FROM business_whatsapp_config WHERE id_config = :id"),
             {'id': id_bot}
         ).fetchone()
+        db.session.commit()
 
-    if result:
-        phone = result['identification_phone']
-        print('Id del teléfono: ', phone)
-        return phone
-    else:
-        print("No se encontró la configuración de la empresa con el ID proporcionado.")
+        if result: 
+            phone = result['identification_phone']
+            print('Id del teléfono: ', phone)
+            return phone
+        else:
+            print("No se encontró la configuración de la empresa con el ID proporcionado.")
+            return False
+    except Exception as e:
+        db.session.rollback()
+        print("Error accessing database:", e)
         return False
     
  
