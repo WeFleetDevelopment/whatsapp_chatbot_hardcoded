@@ -13,7 +13,7 @@ from io import BytesIO
 
 #Database of MySql
 from flask import current_app 
-
+ 
 
 # #Config of the api of whatsapp    
 # from src.config.config_Whatsapp import messenger,logging
