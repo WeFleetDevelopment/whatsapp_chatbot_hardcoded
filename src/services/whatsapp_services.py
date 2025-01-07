@@ -84,7 +84,7 @@ def get_message_type(data):
     except (KeyError, IndexError):
         return None
 
-def get_message(data):
+def get_message(data): 
     """
     Extrae el mensaje de texto del payload recibido.
     Esta es la información central que se utiliza para responder o procesar las solicitudes del usuario.
@@ -94,6 +94,47 @@ def get_message(data):
         return message_data["messages"][0]["text"]["body"]
     except (KeyError, IndexError):
         return None
+    
+def get_image(data):
+    """
+    Extrae el ID de la imagen enviada por el remitente a partir de los datos recibidos del webhook.
+    """
+    message_data = preprocess(data)
+    try:
+        return message_data["messages"][0]["image"]
+    except (KeyError, IndexError):
+        return None
+
+def get_document(data):
+    """
+    Extrae el ID del documento enviado por el remitente a partir de los datos recibidos del webhook.
+    """
+    message_data = preprocess(data)
+    try:
+        return message_data["messages"][0]["document"]
+    except (KeyError, IndexError):
+        return None
+
+def get_audio(data):
+    """
+    Extrae el ID del audio enviado por el remitente a partir de los datos recibidos del webhook.
+    """
+    message_data = preprocess(data)
+    try:
+        return message_data["messages"][0]["audio"]
+    except (KeyError, IndexError):
+        return None
+
+def get_video(data):
+    """
+    Extrae el ID del video enviado por el remitente a partir de los datos recibidos del webhook.
+    """
+    message_data = preprocess(data)
+    try:
+        return message_data["messages"][0]["video"]
+    except (KeyError, IndexError):
+        return None
+
 
 def get_interactive_response(data):
     """Extrae la respuesta interactiva del mensaje."""
@@ -274,7 +315,7 @@ def validate_business_chatbot(id_bot):
         result = db.session.execute(
             text("SELECT token_verified FROM business_whatsapp_config WHERE id_config = :id"),
             {'id': id_bot}
-        ).fetchone()
+        ).fetchone() 
         db.session.commit()
         
         if result:
@@ -284,7 +325,7 @@ def validate_business_chatbot(id_bot):
         else:
             print("No se encontró la configuración de la empresa con el ID proporcionado.")
             return False
-    except Exception as e:
+    except Exception as e: 
         db.session.rollback()
         print("Error accessing database:", e)
         return False
@@ -542,76 +583,76 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
     
     print("Datos obtenidos para manejar archivo:", id_bot, data, mobile, name, message_type, is_image)
      
-    # Obtener información del archivo  
-    # file_info = messenger.get_image(data) if is_image else (
-    #     messenger.get_document(data) if message_type == "document" else get_audio(data)
-    # )
-    # file_id = file_info['id']  # ID del archivo 
-    # mime_type = file_info['mime_type'] 
+    #Obtener información del archivo  
+    file_info = get_image(data) if is_image else (
+        get_document(data) if message_type == "document" else get_audio(data)
+    ) 
+    file_id = file_info['id']  # ID del archivo 
+    mime_type = file_info['mime_type'] 
 
-    # # Generar nombres personalizados para los archivos
-    # if message_type == "audio":
-    #     original_filename = generate_audio_filename()
-    # elif is_image:
-    #     original_filename = generate_filename() + ".jpg"
-    # else:
-    #     original_filename = file_info.get('filename', "archivo_desconocido.pdf")
+    # Generar nombres personalizados para los archivos
+    if message_type == "audio":
+        original_filename = generate_audio_filename()
+    elif is_image:
+        original_filename = generate_filename() + ".jpg"
+    else:
+        original_filename = file_info.get('filename', "archivo_desconocido.pdf")
     
-    # # print('file_info', file_info)
-    # # print('file_id', file_id)
-    # # print('mime_type', mime_type)
-    # # print('original_filename', original_filename)
+    # print('file_info', file_info)
+    # print('file_id', file_id)
+    # print('mime_type', mime_type)
+    # print('original_filename', original_filename)
 
-    # # Paso 1: Hacer la primera petición para obtener la URL del archivo
-    # token = get_token_chatbot(id_bot)
-    # url_query = f"https://graph.facebook.com/v21.0/{file_id}"
-    # headers = {
-    #     'Authorization': f'Bearer {token}'
-    # }
-    # try: 
-    #     response = requests.get(url_query, headers=headers)
-    #     if response.status_code == 200:
-    #         file_data = response.json()
-    #         print("Primera petición exitosa. Datos obtenidos:")
-    #         print(file_data)
-    #         file_url = file_data.get('url')  # Obtener la URL del archivo
+    # Paso 1: Hacer la primera petición para obtener la URL del archivo
+    token = get_token_chatbot(id_bot)
+    url_query = f"https://graph.facebook.com/v21.0/{file_id}"
+    headers = {
+        'Authorization': f'Bearer {token}'
+    }
+    try: 
+        response = requests.get(url_query, headers=headers)
+        if response.status_code == 200:
+            file_data = response.json()
+            print("Primera petición exitosa. Datos obtenidos:")
+            print(file_data)
+            file_url = file_data.get('url')  # Obtener la URL del archivo
 
-    #         # Paso 2: Descargar el archivo usando la URL obtenida
-    #         if file_url: 
-    #             file_response = requests.get(file_url, headers=headers, stream=True)
-    #             if file_response.status_code == 200: 
-    #                 temp_path = os.path.join(TEMP_DIR, original_filename)
-    #                 with open(temp_path, 'wb') as temp_file:
-    #                     for chunk in file_response.iter_content(chunk_size=8192):
-    #                         temp_file.write(chunk)
+            # Paso 2: Descargar el archivo usando la URL obtenida
+            if file_url: 
+                file_response = requests.get(file_url, headers=headers, stream=True)
+                if file_response.status_code == 200: 
+                    temp_path = os.path.join(TEMP_DIR, original_filename)
+                    with open(temp_path, 'wb') as temp_file:
+                        for chunk in file_response.iter_content(chunk_size=8192):
+                            temp_file.write(chunk)
                   
-    #                 # # Verificar tamaño del archivo
-    #                 # print(f"Archivo descargado correctamente: {temp_path}")
-    #                 # print(f"Tamaño del archivo descargado: {os.path.getsize(temp_path)} bytes")
+                    # # Verificar tamaño del archivo
+                    # print(f"Archivo descargado correctamente: {temp_path}")
+                    # print(f"Tamaño del archivo descargado: {os.path.getsize(temp_path)} bytes")
 
-    #                 # Convertir a JPG si es una imagen y no está ya en formato JPEG
-    #                 if is_image and mime_type.split('/')[1] != 'jpeg':
-    #                     temp_path = convert_image_to_jpg(temp_path, original_filename)
+                    # Convertir a JPG si es una imagen y no está ya en formato JPEG
+                    if is_image and mime_type.split('/')[1] != 'jpeg':
+                        temp_path = convert_image_to_jpg(temp_path, original_filename)
   
-    #                 # Enviar el archivo al backend 
-    #                 send_file_to_backend(
-    #                     id_bot,
-    #                     temp_path, 
-    #                     mobile, 
-    #                     name,  
-    #                     message_type, 
-    #                     original_filename, 
-    #                     "image/jpeg" if is_image else mime_type
-    #                 )
-    #             else:
-    #                 print(f"Error al descargar el archivo. Código de estado: {file_response.status_code}")
-    #         else:
-    #             print("No se pudo obtener la URL del archivo en la primera petición.")
-    #     else:
-    #         print(f"Error al obtener datos del archivo. Código de estado: {response.status_code}")
-    #         print(response.json())
-    # except requests.exceptions.RequestException as e:
-    #     print(f"Error durante las peticiones al API de WhatsApp: {e}")
+                    # Enviar el archivo al backend 
+                    send_file_to_backend(
+                        id_bot,
+                        temp_path, 
+                        mobile, 
+                        name,  
+                        message_type, 
+                        original_filename, 
+                        "image/jpeg" if is_image else mime_type
+                    )
+                else:
+                    print(f"Error al descargar el archivo. Código de estado: {file_response.status_code}")
+            else:
+                print("No se pudo obtener la URL del archivo en la primera petición.")
+        else:
+            print(f"Error al obtener datos del archivo. Código de estado: {response.status_code}")
+            print(response.json())
+    except requests.exceptions.RequestException as e:
+        print(f"Error durante las peticiones al API de WhatsApp: {e}")
 
       
 
