@@ -12,7 +12,7 @@ class MySqlConfig(object):
 # MYSQL_HOST = 'srv1311.hstgr.io'
 
 
-
+  
 
 # Init MySql
 class Database:
