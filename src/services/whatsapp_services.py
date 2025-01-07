@@ -6,13 +6,13 @@ import time
 # Time Chile - Santiago
 from datetime import datetime
 import pytz
-
+ 
 # Image
 from PIL import Image
 from io import BytesIO
 
 #Database of MySql
-from flask import current_app
+from flask import current_app 
 
 
 # #Config of the api of whatsapp    
@@ -158,7 +158,7 @@ def send_message(token, url, message, recipient_id, recipient_type="individual",
 def send_image(token, url, image, recipient_id, recipient_type="individual", caption=None, link=True):
     """Sends an image message to a WhatsApp user."""
     if link:
-        data = {
+        data = { 
             "messaging_product": "whatsapp",
             "recipient_type": recipient_type,
             "to": recipient_id,
@@ -283,7 +283,7 @@ def validate_business_chatbot(id_bot):
             print("No se encontró la configuración de la empresa con el ID proporcionado.")
             return False
     finally:
-        cur.close()
+        cur.close() 
      
 # Funcion para obtener el token de cada chatbot de empresa
 def get_token_chatbot(id_bot):

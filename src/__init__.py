@@ -28,4 +28,4 @@ def create_app():
     # Inicializamos las rutas
     app.register_blueprint(whatsapp_routes)
     
-    return app
+    return app   

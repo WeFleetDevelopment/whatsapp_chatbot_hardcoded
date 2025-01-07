@@ -23,3 +23,4 @@ class Database:
         app.config.from_object(MySqlConfig)
         self.mysql = MySQL(app)
         app.extensions['db'] = self.mysql
+ 
