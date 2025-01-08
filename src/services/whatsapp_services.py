@@ -668,7 +668,7 @@ def send_file_to_backend(id_bot, temp_path, phone, name, type_message, original_
         
         files = {'files': (original_filename, file_content, mime_type)}
         data = {
-            'id_bot': id_bot, 
+            'id_config': id_bot, 
             'phone': phone,
             'name': name,
             'type_message': type_message,
