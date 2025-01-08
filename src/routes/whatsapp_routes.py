@@ -15,7 +15,7 @@ from io import BytesIO
 #Services of WhtasApp
 from src.services.whatsapp_services import ( 
     save_user_message,send_template_message,handle_file,get_form_data,registerAccountUser,validate_business_chatbot,get_name,
-    get_message,get_mobile,get_message_type,changed_field,is_message,get_delivery,get_interactive_response,
+    get_message,get_mobile,get_message_type,changed_field,is_message,get_delivery,get_interactive_response,send_message_user
 )  
 #Messages of the bot for send
 # from src.utils.messages import msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10, msgcomunaerror, msg11, msg12, msg13, msg14, msg15, msg16, msg17, msg18, msgpresencial, msgpresencialconfirmacion_no, msgpresencialconfirmacion_si, msg19, msg20, msg21, msg22, msg23, msg24, msg25, msg26, msg27, msg28, msg29, certificadopeoneta, msg30, msg31, msg32, msg33, msg34, msg35, msg36, msg37, msg38, msg39, msg40, msg41, msg42, msg43, msg44, msg45, documento_corregido,
@@ -223,9 +223,11 @@ def send_message():
     id_bot = data["id_config"]
     recipient = data["recipient"]
     message = data["message"] 
-    try: 
-        # messenger.send_message(message, recipient)
-        print("Mensaje enviado de Fletzy al usuario", recipient, message)
+    try:  
+        
+        #Obtener datos del chatbot a enviar mensaje
+        send_message_user(id_bot,message, recipient)
+        print("Mensaje enviado de Fletzy al usuario",id_bot, recipient, message)
         return jsonify({"success": True, "message": f"Mensaje enviado correctamente al numero {recipient}"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500 

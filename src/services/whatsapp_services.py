@@ -192,7 +192,7 @@ def send_message(token, url, message, recipient_id, recipient_type="individual",
         "to": recipient_id,
         "type": "text",
         "text": {"preview_url": preview_url, "body": message},
-    }
+    } 
     headers = {"Authorization": f"Bearer {token}"}
     response = requests.post(url, headers=headers, json=data)
     return response.json()
@@ -251,7 +251,7 @@ def send_template_message(id_bot, phone, template_name, template_parameters, tem
      
     url = f'https://graph.facebook.com/v21.0/{identification_phone_chatbot}/messages'
     tokenChatbot = get_token_chatbot(id_bot)
-       
+    
     headers = { 
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {tokenChatbot}'
@@ -380,9 +380,32 @@ def get_phone_chatbot_id(id_bot):
 
  
 
+
+
+
+#-------------------------------------- Funciones para enviar mensajes a WhatsApp ---------------------------------
+
+# Function for Send message to user
+def send_message_user(id_bot, message, recipient):
+    # 1- Obtener el token de la empresa mediante el id_bot
+    token = get_token_chatbot(id_bot)
+    phone_send = get_phone_chatbot_id(id_bot)
+    print("Token obtenido:", token)
+    print("Id del teléfono:", phone_send)
+    print("Mensaje a enviar:", message)
+    url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages'
+
+    # 2- Enviar el mensaje al usuario
+    response = send_message(token, url_chatbot, message, recipient)
+
+    # 3- Mostrar en consola si el mensaje fue enviado correctamente
+    if response.get("messages"):
+        print(f"Mensaje enviado a {recipient}: {message}")
+    else:
+        print(f"Error al enviar mensaje a {recipient}: {response.get('error', 'Error desconocido')}")
+   
  
 
-  
 
 #-------------------- Extra Functions ----------------------------
 def generate_filename():
