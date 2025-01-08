@@ -388,17 +388,17 @@ def get_phone_chatbot_id(id_bot):
 def generate_filename():
     tz = pytz.timezone('America/Santiago')
     current_time = datetime.now(tz)
-    formatted_time = current_time.strftime("%Y-%m-%d_%H:%M")
-    return f"WhatsApp_Fletzy_{formatted_time}"
-
+    formatted_time = current_time.strftime("%Y-%m-%d_%H:%M:%S") 
+    return f"WhatsApp_Hoktus_image_{formatted_time}"
+ 
 
 # Función para generar nombres personalizados para audios
 def generate_audio_filename():
     tz = pytz.timezone('America/Santiago')
     current_time = datetime.now(tz)
     formatted_time = current_time.strftime("%Y-%m-%d_%H:%M:%S")
-    return f"WhatsApp_Fletzy_audio_{formatted_time}"
-
+    return f"WhatsApp_Hoktus_audio_{formatted_time}"
+ 
 
 
 # Function for Obtein message of user in whatsapp and send to the back-end to save it
@@ -411,7 +411,7 @@ def save_user_message(id_bot, phone, message, name, type_message):
     if (validate == False):
         print("No se encontró la configuración de la empresa con el ID proporcionado.",id_bot)
         return False 
-        
+         
     
     #1- Create the url to Save the message
     url = f'{BASE_URL}/api/messages/business/chat/user/save-message'
@@ -586,7 +586,7 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
     #Obtener información del archivo  
     file_info = get_image(data) if is_image else (
         get_document(data) if message_type == "document" else get_audio(data)
-    ) 
+    )
     file_id = file_info['id']  # ID del archivo 
     mime_type = file_info['mime_type'] 
 
