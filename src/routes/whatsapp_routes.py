@@ -95,15 +95,15 @@ def webhook_whatsapp():
                      
             # Capturar y enviar documentos
             elif message_type == "document":
-                handle_file(data, mobile, name, message_type, is_image=False)
+                handle_file(id_bot,data, mobile, name, message_type, is_image=False)
 
             # Capturar y enviar imágenes
             elif message_type == "image":
-                handle_file(data, mobile, name, message_type, is_image=True)
+                handle_file(id_bot,data, mobile, name, message_type, is_image=True)
 
             # Capturar y enviar audios
             elif message_type == "audio":
-                handle_file(data, mobile, name, message_type, is_image=False)
+                handle_file(id_bot,data, mobile, name, message_type, is_image=False)
          
             delivery = get_delivery(data)
             if delivery:

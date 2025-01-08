@@ -605,6 +605,7 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
 
     # Paso 1: Hacer la primera petición para obtener la URL del archivo
     token = get_token_chatbot(id_bot)
+    print("Token obtenido handle_file:", token) 
     url_query = f"https://graph.facebook.com/v21.0/{file_id}"
     headers = {
         'Authorization': f'Bearer {token}'
