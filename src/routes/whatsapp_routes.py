@@ -1,5 +1,6 @@
 #---------------------- Logica para las peticiones de la API DE WHATSAPP BUSINESS ----------------------
 from flask import Blueprint,request,jsonify
+import json
 import os
 import requests
 import pytz
@@ -27,6 +28,9 @@ whatsapp_routes = Blueprint('webhook_whatsapp', __name__)
 # Ruta para recibir mensajes / 
 @whatsapp_routes.route("/whatsapp/webhook", methods=["POST", "GET"])
 def webhook_whatsapp():
+        # Imprime todo el cuerpo de la solicitud
+    print("Raw request data:", request.data)
+    print("JSON request data:", json.dumps(request.get_json(), indent=4))
      
     #1- Verificar el id de la configuracion de la empresa, que exista en la url
     id_bot = request.args.get('id_bot', None)
