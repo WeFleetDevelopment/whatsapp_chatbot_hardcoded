@@ -351,16 +351,15 @@ def get_phone_chatbot_id(id_bot):
 
  
 
-
-
+  
 
 #-------------------------------------- Funciones para enviar mensajes a WhatsApp ---------------------------------
 
 # Function for Send message to user
-async def send_message_user(id_bot, message, recipient):
+def send_message_user(id_bot, message, recipient):
     # 1- Obtener el token de la empresa mediante el id_bot
-    token = await get_token_chatbot(id_bot)
-    phone_send =  await get_phone_chatbot_id(id_bot)
+    token = get_token_chatbot(id_bot)
+    phone_send = get_phone_chatbot_id(id_bot)
     print("Token obtenido:", token)
     print("Id del teléfono:", phone_send)
     print("Mensaje a enviar:", message)
@@ -377,11 +376,11 @@ async def send_message_user(id_bot, message, recipient):
    
 
 # Function for send document to user
-async def send_document_user(id_bot, file_url, recipient, name_file):
+def send_document_user(id_bot, file_url, recipient, name_file):
     
     #1- Obtener token de la empresa mediante el id_bot
-    token = await get_token_chatbot(id_bot)
-    phone_send = await get_phone_chatbot_id(id_bot) 
+    token =  get_token_chatbot(id_bot)
+    phone_send =  get_phone_chatbot_id(id_bot) 
     url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages' 
 
     #2- Enviar el documento al usuario
@@ -396,11 +395,11 @@ async def send_document_user(id_bot, file_url, recipient, name_file):
   
  
 # Funcion para enviar imagen al usuario
-async def send_image_user(id_bot, file_url, recipient):
+def send_image_user(id_bot, file_url, recipient):
 
     #1- Obtener token de la empresa mediante el id_bot
-    token = await  get_token_chatbot(id_bot)
-    phone_send = await get_phone_chatbot_id(id_bot)
+    token =   get_token_chatbot(id_bot)
+    phone_send =  get_phone_chatbot_id(id_bot)
     url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages'  
 
     #2- Enviar la imagen al usuario
@@ -414,11 +413,11 @@ async def send_image_user(id_bot, file_url, recipient):
 
 
 # Funcion para enviar audio al usuario
-async def send_audio_user(id_bot, file_url, recipient):
+def send_audio_user(id_bot, file_url, recipient):
 
     #1- Obtener token de la empresa mediante el id_bot
-    token = await get_token_chatbot(id_bot)
-    phone_send = await get_phone_chatbot_id(id_bot)
+    token =  get_token_chatbot(id_bot)
+    phone_send =  get_phone_chatbot_id(id_bot)
     url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages'
  
     #2- Enviar el audio al usuario
