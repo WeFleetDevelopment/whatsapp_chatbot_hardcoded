@@ -183,6 +183,8 @@ def preprocess(data):
 #-------------------------------------- Funciones para enviar mensajes a WhatsApp ---------------------------------
 def send_document(token, url, document, recipient_id, caption=None, link=True, filename=None):
     """Sends a document message to a WhatsApp user."""
+
+    print(f"Enviando documento a {url} con token {token} y document {document} y  recipient_id {recipient_id} y caption {caption} y link {link} y filename {filename}") 
     if link:
         data = {
             "messaging_product": "whatsapp",
@@ -218,6 +220,7 @@ def send_message(token, url, message, recipient_id, recipient_type="individual",
 
 def send_image(token, url, image, recipient_id, recipient_type="individual", caption=None, link=True):
     """Sends an image message to a WhatsApp user."""
+    print(f"Enviando imagen a {url} con token {token} y image {image} y  recipient_id {recipient_id}") 
     if link:
         data = { 
             "messaging_product": "whatsapp",
@@ -380,7 +383,7 @@ def send_document_user(id_bot, file_url, recipient, name_file):
     
     #1- Obtener token de la empresa mediante el id_bot
     token =  get_token_chatbot(id_bot)
-    phone_send =  get_phone_chatbot_id(id_bot) 
+    phone_send =  get_phone_chatbot_id(id_bot)  
     url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages' 
 
     #2- Enviar el documento al usuario
@@ -400,7 +403,11 @@ def send_image_user(id_bot, file_url, recipient):
     #1- Obtener token de la empresa mediante el id_bot
     token =   get_token_chatbot(id_bot)
     phone_send =  get_phone_chatbot_id(id_bot)
-    url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages'  
+    url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages'
+
+    print("Token obtenido:", token)
+    print("Id del teléfono:", phone_send)
+    print("Url de la imagen:", file_url)  
 
     #2- Enviar la imagen al usuario
     response =  send_image(token, url_chatbot, file_url, recipient, caption=None, link=True)  
