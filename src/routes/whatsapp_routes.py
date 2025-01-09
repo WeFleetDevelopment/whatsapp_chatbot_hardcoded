@@ -29,8 +29,8 @@ whatsapp_routes = Blueprint('webhook_whatsapp', __name__)
 @whatsapp_routes.route("/whatsapp/webhook", methods=["POST", "GET"])
 def webhook_whatsapp():
         # Imprime todo el cuerpo de la solicitud
-    print("Raw request data:", request.data)
-    print("JSON request data:", json.dumps(request.get_json(), indent=4))
+    # print("Raw request data:", request.data)
+    # print("JSON request data:", json.dumps(request.get_json(), indent=4))
      
     #1- Verificar el id de la configuracion de la empresa, que exista en la url
     id_bot = request.args.get('id_bot', None)
@@ -68,8 +68,8 @@ def webhook_whatsapp():
                
             #1-  Capturar  mensajes de Texto    
             if message_type == "text":
-                message_received = get_message(data)  
-                print("Mensaje recibido", message_received)
+                message_received =  get_message(data)  
+                print("Mensaje recibido", message_received) 
                 if message_received:  # Verificar si el mensaje recibido no está vacío
                     save_user_message(id_bot, mobile, message_received, name,message_type)  # Pasar el nombre del usuario
              
@@ -223,7 +223,7 @@ def send_message():
     id_bot = data["id_config"]
     recipient = data["recipient"]
     message = data["message"] 
-    try:  
+    try:   
         print("Datos del mensaje recibido en endpoint send message", id_bot,recipient, message) 
           
         #Obtener datos del chatbot a enviar mensaje

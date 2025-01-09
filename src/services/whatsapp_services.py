@@ -186,9 +186,11 @@ def send_document(token, url, document, recipient_id, caption=None, link=True, f
 
 def send_message(token, url, message, recipient_id, recipient_type="individual", preview_url=True):
     """Sends a text message to a WhatsApp user."""
+
+    print("Datos para enviar mensaje", token, url, message, recipient_id, recipient_type, preview_url)
     data = {
-        "messaging_product": "whatsapp",
-        "recipient_type": recipient_type,
+        "messaging_product": "whatsapp", 
+        "recipient_type": recipient_type, 
         "to": recipient_id,
         "type": "text",
         "text": {"preview_url": preview_url, "body": message},
@@ -397,7 +399,7 @@ def send_message_user(id_bot, message, recipient):
 
     # 2- Enviar el mensaje al usuario
     response = send_message(token, url_chatbot, message, recipient)
-
+   
     # 3- Mostrar en consola si el mensaje fue enviado correctamente
     if response.get("messages"):
         print(f"Mensaje enviado a {recipient}: {message}")
@@ -405,7 +407,7 @@ def send_message_user(id_bot, message, recipient):
         print(f"Error al enviar mensaje a {recipient}: {response.get('error', 'Error desconocido')}")
    
  
-
+ 
 
 #-------------------- Extra Functions ----------------------------
 def generate_filename():
