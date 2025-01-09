@@ -251,16 +251,16 @@ def send_file(type):
     
     try:
         if type == "document":
-            print("data", data) 
+            print("data document", data) 
             send_document_user(id_bot,file_url, recipient, name_file)
         elif type == "image":    
-            print("data", data) 
+            print("data image", data) 
             send_image_user(id_bot, file_url, recipient)
   
         elif type == "audio": 
-            print("data", data) 
-            send_audio_user(id_bot, file_url, recipient, link=True)
-             
+            print("data audio", data) 
+            send_audio_user(id_bot, file_url, recipient)
+                  
         else:
             return jsonify({"error": "Tipo de archivo no soportado"}), 400
         
