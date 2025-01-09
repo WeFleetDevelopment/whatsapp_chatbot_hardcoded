@@ -6,7 +6,7 @@ from flask_cors import CORS
 from src.routes.whatsapp_routes import whatsapp_routes
 
 #Data Base of MySql
-from src.database.mysql.mysql_config import db,Config
+from src.database.mysql.mysql_config import db, Config
  
 def create_app():
     app = Flask(__name__)

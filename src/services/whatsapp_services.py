@@ -12,10 +12,12 @@ from PIL import Image
 from io import BytesIO
 
 #Database of MySql
-from flask import current_app 
 from sqlalchemy import text
-from src.database.mysql.mysql_config import db
+from flask import current_app
+from contextlib import contextmanager
+from src.database.mysql.mysql_config import db 
 
+ 
 # #Config of the api of whatsapp    
 # from src.config.config_Whatsapp impor t messenger,logging
  
@@ -30,6 +32,21 @@ BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-test-production.up.railway.
 # BASE_URL = 'https://wefleetdeveloperbackendtest.alwaysdata.net'
 #Prueba 2
 # BASE_URL = 'https://c679-2803-c600-5117-8006-95f3-f3b0-484d-30d.ngrok-free.app'
+
+
+@contextmanager
+def session_scope():
+    """Proporciona un scope transaccional alrededor de una serie de operaciones."""
+    session = db.session()
+    try:
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
 
 # ------------------------------------ Funciones para capturar valores en la peticion que envia whatsapp al webhook ---------------------------------
 
@@ -189,8 +206,8 @@ def send_message(token, url, message, recipient_id, recipient_type="individual",
 
     print("Datos para enviar mensaje", token, url, message, recipient_id, recipient_type, preview_url)
     data = {
-        "messaging_product": "whatsapp", 
-        "recipient_type": recipient_type, 
+        "messaging_product": "whatsapp",
+        "recipient_type": recipient_type,
         "to": recipient_id,
         "type": "text",
         "text": {"preview_url": preview_url, "body": message},
@@ -312,73 +329,25 @@ def send_template_message(id_bot, phone, template_name, template_parameters, tem
 def validate_business_chatbot(id_bot):
     if not id_bot:
         return False
-
-    try:
-        result = db.session.execute(
-            text("SELECT token_verified FROM business_whatsapp_config WHERE id_config = :id"),
-            {'id': id_bot}
-        ).fetchone() 
-        db.session.commit()
-        
-        if result:
-            token_verified = result[0]  # Access the first element of the tuple
-            print("Token verificado desde la base de datos:", token_verified)
-            return token_verified
-        else:
-            print("No se encontró la configuración de la empresa con el ID proporcionado.")
-            return False
-    except Exception as e: 
-        db.session.rollback()
-        print("Error accessing database:", e)
-        return False
+    with session_scope() as session:
+        result = session.execute(text("SELECT token_verified FROM business_whatsapp_config WHERE id_config = :id"), {'id': id_bot}).fetchone()
+        return result[0] if result else False
 
 # Function to obtain the token of each business chatbot
 def get_token_chatbot(id_bot):
     if not id_bot:
         return False
-
-    try: 
-        result = db.session.execute(
-            text("SELECT token FROM business_whatsapp_config WHERE id_config = :id"),
-            {'id': id_bot}
-        ).fetchone()
-        db.session.commit()
-
-        if result: 
-            token = result[0]  # Access the first element of the tuple
-            print('Token jwt Perma: ', token)
-            return token
-        else:
-            print("No se encontró la configuración de la empresa con el ID proporcionado.")
-            return False
-    except Exception as e:
-        db.session.rollback()
-        print("Error accessing database:", e)
-        return False
+    with session_scope() as session:
+        result = session.execute(text("SELECT token FROM business_whatsapp_config WHERE id_config = :id"), {'id': id_bot}).fetchone()
+        return result[0] if result else False
 
 # Function to obtain the phone identifier of the business chatbot via the id_config/id_bot
 def get_phone_chatbot_id(id_bot):
     if not id_bot:
         return False
-
-    try: 
-        result = db.session.execute(
-            text("SELECT identification_phone FROM business_whatsapp_config WHERE id_config = :id"),
-            {'id': id_bot}
-        ).fetchone()
-        db.session.commit()
-
-        if result: 
-            phone = result[0]  # Access the first element of the tuple
-            print('Id del teléfono: ', phone)
-            return phone
-        else:
-            print("No se encontró la configuración de la empresa con el ID proporcionado.")
-            return False
-    except Exception as e:
-        db.session.rollback()
-        print("Error accessing database:", e)
-        return False
+    with session_scope() as session:
+        result = session.execute(text("SELECT identification_phone FROM business_whatsapp_config WHERE id_config = :id"), {'id': id_bot}).fetchone()
+        return result[0] if result else False
 
  
 
@@ -407,7 +376,7 @@ def send_message_user(id_bot, message, recipient):
         print(f"Error al enviar mensaje a {recipient}: {response.get('error', 'Error desconocido')}")
    
  
- 
+
 
 #-------------------- Extra Functions ----------------------------
 def generate_filename():
