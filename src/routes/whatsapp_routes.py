@@ -224,7 +224,8 @@ def send_message():
     recipient = data["recipient"]
     message = data["message"] 
     try:  
-        
+        print("Datos del mensaje recibido en endpoint send message", id_bot,recipient, message) 
+          
         #Obtener datos del chatbot a enviar mensaje
         send_message_user(id_bot,message, recipient)
         print("Mensaje enviado de Fletzy al usuario",id_bot, recipient, message)
