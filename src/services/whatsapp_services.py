@@ -17,6 +17,9 @@ from flask import current_app
 from contextlib import contextmanager
 from src.database.mysql.mysql_config import db 
 
+#Tenacy
+from tenacity import retry, wait_fixed, stop_after_attempt
+from sqlalchemy.exc import OperationalError
  
 # #Config of the api of whatsapp    
 # from src.config.config_Whatsapp impor t messenger,logging
@@ -329,6 +332,7 @@ def send_template_message(id_bot, phone, template_name, template_parameters, tem
 #-------------------------------------- Validations WhatsApp Chatbot y obtencion de datos importantes ---------------------------------
 
 # Function for validate the business chatbot and return token verified of aplication of business
+@retry(stop=stop_after_attempt(3), wait=wait_fixed(2), retry_error_callback=lambda retry_state: False, reraise=True)
 def validate_business_chatbot(id_bot):
     if not id_bot:
         return False
@@ -337,6 +341,7 @@ def validate_business_chatbot(id_bot):
         return result[0] if result else False
 
 # Function to obtain the token of each business chatbot
+@retry(stop=stop_after_attempt(3), wait=wait_fixed(2), retry_error_callback=lambda retry_state: False, reraise=True)
 def get_token_chatbot(id_bot):
     if not id_bot:
         return False
@@ -345,6 +350,7 @@ def get_token_chatbot(id_bot):
         return result[0] if result else False
 
 # Function to obtain the phone identifier of the business chatbot via the id_config/id_bot
+@retry(stop=stop_after_attempt(3), wait=wait_fixed(2), retry_error_callback=lambda retry_state: False, reraise=True)
 def get_phone_chatbot_id(id_bot):
     if not id_bot:
         return False
