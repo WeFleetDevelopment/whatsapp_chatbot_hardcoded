@@ -186,7 +186,7 @@ def send_document(token, url, document, recipient_id, caption=None, link=True, f
     if link:
         data = {
             "messaging_product": "whatsapp",
-            "to": recipient_id,
+            "to": recipient_id, 
             "type": "document",
             "document": {"link": document, "caption": caption, "filename": filename},
         }
@@ -357,10 +357,10 @@ def get_phone_chatbot_id(id_bot):
 #-------------------------------------- Funciones para enviar mensajes a WhatsApp ---------------------------------
 
 # Function for Send message to user
-def send_message_user(id_bot, message, recipient):
+async def send_message_user(id_bot, message, recipient):
     # 1- Obtener el token de la empresa mediante el id_bot
-    token = get_token_chatbot(id_bot)
-    phone_send = get_phone_chatbot_id(id_bot)
+    token = await get_token_chatbot(id_bot)
+    phone_send =  await get_phone_chatbot_id(id_bot)
     print("Token obtenido:", token)
     print("Id del teléfono:", phone_send)
     print("Mensaje a enviar:", message)
@@ -375,8 +375,60 @@ def send_message_user(id_bot, message, recipient):
     else:
         print(f"Error al enviar mensaje a {recipient}: {response.get('error', 'Error desconocido')}")
    
- 
 
+# Function for send document to user
+async def send_document_user(id_bot, file_url, recipient, name_file):
+    
+    #1- Obtener token de la empresa mediante el id_bot
+    token = await get_token_chatbot(id_bot)
+    phone_send = await get_phone_chatbot_id(id_bot) 
+    url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages' 
+
+    #2- Enviar el documento al usuario
+
+    response = send_document(token, url_chatbot, file_url, recipient, caption=name_file, link=True, filename=name_file)
+
+    #3- Mostrar en consola si el documento fue enviado correctamente
+    if response.get("messages"):
+        print(f"Documento enviado a {recipient}: {name_file}")
+    else:
+        print(f"Error al enviar documento a {recipient}: {response.get('error', 'Error desconocido')}")
+  
+ 
+# Funcion para enviar imagen al usuario
+async def send_image_user(id_bot, file_url, recipient):
+
+    #1- Obtener token de la empresa mediante el id_bot
+    token = await  get_token_chatbot(id_bot)
+    phone_send = await get_phone_chatbot_id(id_bot)
+    url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages'  
+
+    #2- Enviar la imagen al usuario
+    response =  send_image(token, url_chatbot, file_url, recipient, caption=None, link=True)  
+ 
+    #3- Mostrar en consola si la imagen fue enviada correctamente
+    if response.get("messages"):
+        print(f"Imagen enviada a {recipient}: {file_url}")
+    else:
+        print(f"Error al enviar imagen a {recipient}: {response.get('error', 'Error desconocido')}")
+
+
+# Funcion para enviar audio al usuario
+async def send_audio_user(id_bot, file_url, recipient):
+
+    #1- Obtener token de la empresa mediante el id_bot
+    token = await get_token_chatbot(id_bot)
+    phone_send = await get_phone_chatbot_id(id_bot)
+    url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages'
+ 
+    #2- Enviar el audio al usuario
+    response = send_audio(token, url_chatbot, file_url, recipient, link=True)
+ 
+    #3- Mostrar en consola si el audio fue enviado correctamente
+    if response.get("messages"):
+        print(f"Audio enviado a {recipient}: {file_url}")
+    else:
+        print(f"Error al enviar audio a {recipient}: {response.get('error', 'Error desconocido')}")
 
 #-------------------- Extra Functions ----------------------------
 def generate_filename():

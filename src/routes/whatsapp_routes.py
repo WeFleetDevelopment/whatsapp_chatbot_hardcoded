@@ -15,7 +15,9 @@ from io import BytesIO
 #Services of WhtasApp
 from src.services.whatsapp_services import ( 
     save_user_message,send_template_message,handle_file,get_form_data,registerAccountUser,validate_business_chatbot,get_name,
-    get_message,get_mobile,get_message_type,changed_field,is_message,get_delivery,get_interactive_response,send_message_user
+    get_message,get_mobile,get_message_type,changed_field,is_message,get_delivery,get_interactive_response,send_message_user,send_document_user,
+    send_image_user,send_audio_user
+    
 )  
 #Messages of the bot for send
 # from src.utils.messages import msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10, msgcomunaerror, msg11, msg12, msg13, msg14, msg15, msg16, msg17, msg18, msgpresencial, msgpresencialconfirmacion_no, msgpresencialconfirmacion_si, msg19, msg20, msg21, msg22, msg23, msg24, msg25, msg26, msg27, msg28, msg29, certificadopeoneta, msg30, msg31, msg32, msg33, msg34, msg35, msg36, msg37, msg38, msg39, msg40, msg41, msg42, msg43, msg44, msg45, documento_corregido,
@@ -237,7 +239,7 @@ def send_message():
 # Ruta para enviar archivos personalizados o Default dentro del protocolo de 24 Horas
 @whatsapp_routes.route('/whatsapp/send_file/<type>', methods=["POST"])
 def send_file(type):
-    data = request.json  
+    data = request.json   
     if "recipient" not in data or "file_url" not in data:
         return jsonify({"error": "El JSON debe contener 'recipient' y 'file_url'"}), 400
     
@@ -249,15 +251,15 @@ def send_file(type):
     
     try:
         if type == "document":
-            print("data", data)
-            # messenger.send_document(file_url, recipient, name_file)
-        elif type == "image":
-            print("data", data)
-            # messenger.send_image(file_url, recipient)
+            print("data", data) 
+            send_document_user(id_bot,file_url, recipient, name_file)
+        elif type == "image":    
+            print("data", data) 
+            send_image_user(id_bot, file_url, recipient)
   
         elif type == "audio": 
             print("data", data) 
-            # messenger.send_audio(file_url, recipient, link=True)
+            send_audio_user(id_bot, file_url, recipient, link=True)
              
         else:
             return jsonify({"error": "Tipo de archivo no soportado"}), 400
