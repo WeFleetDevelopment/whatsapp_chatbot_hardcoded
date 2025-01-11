@@ -2,7 +2,8 @@ import requests
 import os
 import json
 import time
-
+import random
+import string
 # Time Chile - Santiago
 from datetime import datetime
 import pytz
@@ -262,6 +263,7 @@ def send_audio(token, url, audio, recipient_id, link=True):
         }
     headers = {"Authorization": f"Bearer {token}"}
     response = requests.post(url, headers=headers, json=data)
+    print("Response from WhatsApp API:", response.text)
     return response.json()
 
 # Function for send message of template to user
@@ -443,11 +445,18 @@ def send_audio_user(id_bot, file_url, recipient):
         print(f"Error al enviar audio a {recipient}: {response.get('error', 'Error desconocido')}")
 
 #-------------------- Extra Functions ----------------------------
+def generate_random_id_upper(length):
+    """ Generate a random uppercase ID with digits of specified length. """
+    characters = string.ascii_uppercase + string.digits
+    return ''.join(random.choices(characters, k=length))
+
+
 def generate_filename():
     tz = pytz.timezone('America/Santiago')
     current_time = datetime.now(tz)
     formatted_time = current_time.strftime("%Y-%m-%d_%H:%M:%S") 
-    return f"WhatsApp_Hoktus_image_{formatted_time}"
+    unique_id = generate_random_id_upper(10)
+    return f"WhatsApp_Hoktus_image_{formatted_time}_{unique_id}"
  
 
 # Función para generar nombres personalizados para audios
@@ -455,7 +464,8 @@ def generate_audio_filename():
     tz = pytz.timezone('America/Santiago')
     current_time = datetime.now(tz)
     formatted_time = current_time.strftime("%Y-%m-%d_%H:%M:%S")
-    return f"WhatsApp_Hoktus_audio_{formatted_time}"
+    unique_id = generate_random_id_upper(10)
+    return f"WhatsApp_Hoktus_audio_{formatted_time}_{unique_id}" 
  
 
 
