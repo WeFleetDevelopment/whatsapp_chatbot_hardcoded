@@ -4,7 +4,7 @@ from src import create_app
 
 app = create_app()
 
-print("-------------- Aplicacion Corriendo Exitosamente de Chatbot de  Business ------------------")
+print("-------------- Aplicacion Corriendo Exitosamente de Chatbot de  Business produccion ------------------")
 
 if __name__ == '__main__':
     app.run()

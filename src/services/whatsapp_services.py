@@ -30,12 +30,11 @@ TEMP_DIR = os.path.join(os.path.dirname(__file__), '..', 'temp')
 
 # Define la URL base como una variable global
 #Original
-BASE_URL = 'https://hoktus-api-messages-test-production.up.railway.app'
-BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-test-production.up.railway.app'
+BASE_URL = 'https://hoktus-api-messages-prod-production.up.railway.app'
+BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-prod-production.up.railway.app'
 #Prueba 1
-# BASE_URL = 'https://wefleetdeveloperbackendtest.alwaysdata.net'
-#Prueba 2
-# BASE_URL = 'https://c679-2803-c600-5117-8006-95f3-f3b0-484d-30d.ngrok-free.app'
+# BASE_URL = 'https://hoktus-api-messages-test-production.up.railway.app'
+# BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-test-production.up.railway.app'
 
 
 @contextmanager
@@ -793,35 +792,35 @@ def registerAccountUser(id_bot,phone, data):
             "data": data
         }
 
-        # Enviar la solicitud POST al backend
-        response = requests.post(url, headers=headers, json=payload)
+        # # Enviar la solicitud POST al backend
+        # response = requests.post(url, headers=headers, json=payload)
 
-        if response.status_code >= 200 and response.status_code <= 204:
-            # Mensaje de éxito
-            newMessage = (
-                "¡Cuenta creada con éxito! 🎉 "
-                "Gracias por confiar en Fletzy. En unos minutos recibirás un correo electrónico "
-                "con tus credenciales para iniciar sesión en https://fletzy.com/login. "
-                "Completa tu perfil para continuar con el proceso. 😊"
-            )
+        # if response.status_code >= 200 and response.status_code <= 204:
+        #     # Mensaje de éxito
+        #     newMessage = (
+        #         "¡Cuenta creada con éxito! 🎉 "
+        #         "Gracias por confiar en Fletzy. En unos minutos recibirás un correo electrónico "
+        #         "con tus credenciales para iniciar sesión en https://fletzy.com/login. "
+        #         "Completa tu perfil para continuar con el proceso. 😊"
+        #     )
 
-            # URL para enviar el mensaje al usuario
-            url_message = f'{BASE_URL_CHATBOT}/whatsapp/send_message'
+        #     # URL para enviar el mensaje al usuario
+        #     url_message = f'{BASE_URL_CHATBOT}/whatsapp/send_message'
 
-            message_payload = {
-                "recipient": phone,
-                "message": newMessage
-            }
+        #     message_payload = {
+        #         "recipient": phone,
+        #         "message": newMessage
+        #     }
 
-            # Enviar mensaje de agradecimiento al usuario
-            message_response = requests.post(url_message, json=message_payload)
+        #     # Enviar mensaje de agradecimiento al usuario
+        #     message_response = requests.post(url_message, json=message_payload)
 
-            if message_response.status_code >= 200 and message_response.status_code <= 204:
-                print("Mensaje de agradecimiento enviado correctamente.")
-            else:
-                print("Error al enviar el mensaje de agradecimiento.")
-        else:
-            print(f"Error en la creación de cuenta: {response.status_code} - {response.text}")
+        #     if message_response.status_code >= 200 and message_response.status_code <= 204:
+        #         print("Mensaje de agradecimiento enviado correctamente.")
+        #     else:
+        #         print("Error al enviar el mensaje de agradecimiento.")
+        # else:
+        #     print(f"Error en la creación de cuenta: {response.status_code} - {response.text}")
 
     except Exception as e:
         print(f"Error en la función registerAccountUser: {str(e)}")
