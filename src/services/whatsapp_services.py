@@ -274,7 +274,7 @@ def send_template_message(id_bot, phone, template_name, template_parameters, tem
 
     #1- Obtener el identificador del telefono del chatbot de la empresa
     identification_phone_chatbot = get_phone_chatbot_id(id_bot)
-     
+    
     url = f'https://graph.facebook.com/v21.0/{identification_phone_chatbot}/messages'
     tokenChatbot = get_token_chatbot(id_bot)
     

@@ -274,21 +274,53 @@ def send_file(type):
 # Ruta para obtener el usuario y la plantilla de mensaje para enviarle el mensaje de plantilla al usuario
 @whatsapp_routes.route("/whatsapp/send_template_message", methods=["POST"])
 def route_send_template_message():
+    # Extraer el cuerpo completo de la solicitud POST
     data = request.json
-    if "phone" not in data or "template_name" not in data:
-        return jsonify({"error": "El JSON debe contener 'phone' y 'template_name'"}), 400
-     
-    id_bot = data["id_config"]
-    phone = data["phone"] 
-    template_name = data["template_name"]
-    template_parameters = data.get("template_parameters", [])
-    template_type = data.get("template_type", None)
+
+    print("Datos de la solicitud", data)
+
+    # Verificar que 'userData' y 'messageData' estén en el cuerpo de la solicitud
+    if "userData" not in data or "messageData" not in data:
+        return jsonify({"error": "El JSON debe contener 'userData' y 'messageData'"}), 400
     
+    # Extraemos userData y messageData del cuerpo de la solicitud
+    userData = data["userData"]
+    messageData = data["messageData"]
+    
+    print("Datos del usuario", userData)
+    print("Datos del mensaje", messageData)
+
+    # Asumimos que estas son las funciones y parámetros requeridos para enviar un mensaje
     try:
-        response = send_template_message(id_bot,phone, template_name, template_parameters, template_type)
+        # Implementar la lógica de envío de mensaje basada en userData y messageData
+        response = send_template_message(
+            id_config=userData['id_config'],
+            recipient=userData['phone'],
+            template_name=messageData['template_name'],
+            template_parameters=messageData.get('template_parameters', []),
+            template_type=messageData.get('template_type')
+        )
         return jsonify({"success": True, "response": response}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# @whatsapp_routes.route("/whatsapp/send_template_message", methods=["POST"])
+# def route_send_template_message():
+#     data = request.json
+#     if "phone" not in data or "template_name" not in data:
+#         return jsonify({"error": "El JSON debe contener 'phone' y 'template_name'"}), 400
+     
+#     id_bot = data["id_config"]
+#     phone = data["phone"]
+#     template_name = data["template_name"]
+#     template_parameters = data.get("template_parameters", [])
+#     template_type = data.get("template_type", None)
+    
+#     try:
+#         response = send_template_message(id_bot,phone, template_name, template_parameters, template_type)
+#         return jsonify({"success": True, "response": response}), 200
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
 
 
 # Ruta para obtener el usuario y la plantilla de mensaje para enviarle el mensaje de plantilla al usuario
