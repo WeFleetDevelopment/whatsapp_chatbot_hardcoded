@@ -267,16 +267,19 @@ def send_audio(token, url, audio, recipient_id, link=True):
 
 # Function for send message of template to user
 def send_template_message(id_bot, phone, template_name, template_parameters, template_type):
-    print("Datos obtenidos", id_bot, phone, template_name, template_parameters, template_type)
+    print("Datos obtenidos template", id_bot, phone, template_name, template_parameters, template_type)
 
     if(id_bot == None or id_bot == ''):
         return False
-
+     
     #1- Obtener el identificador del telefono del chatbot de la empresa
     identification_phone_chatbot = get_phone_chatbot_id(id_bot)
+    print("Identificación del teléfono del chatbot:", identification_phone_chatbot)
     
     url = f'https://graph.facebook.com/v21.0/{identification_phone_chatbot}/messages'
     tokenChatbot = get_token_chatbot(id_bot)
+
+    print("Token obtenido:", tokenChatbot)
     
     headers = { 
         'Content-Type': 'application/json',
@@ -359,7 +362,7 @@ def get_phone_chatbot_id(id_bot):
         result = session.execute(text("SELECT identification_phone FROM business_whatsapp_config WHERE id_config = :id"), {'id': id_bot}).fetchone()
         return result[0] if result else False
 
- 
+
 
   
 

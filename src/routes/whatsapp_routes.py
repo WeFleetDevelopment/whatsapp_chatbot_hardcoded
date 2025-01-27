@@ -277,7 +277,7 @@ def route_send_template_message():
     # Extraer el cuerpo completo de la solicitud POST
     data = request.json
 
-    print("Datos de la solicitud", data)
+    print("Datos de la solicitud template:", json.dumps(data, indent=4))
 
     # Verificar que 'userData' y 'messageData' estén en el cuerpo de la solicitud
     if "userData" not in data or "messageData" not in data:
@@ -287,9 +287,9 @@ def route_send_template_message():
     userData = data["userData"]
     messageData = data["messageData"]
     
-    print("Datos del usuario", userData)
-    print("Datos del mensaje", messageData)
-
+    print("Datos del usuario userData", userData)
+    print("Datos del mensaje messageData", messageData)
+    
     # Asumimos que estas son las funciones y parámetros requeridos para enviar un mensaje
     try:
         # Implementar la lógica de envío de mensaje basada en userData y messageData
