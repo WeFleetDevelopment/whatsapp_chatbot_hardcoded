@@ -276,11 +276,13 @@ def route_send_template_message():
     data = request.json
     print("Datos de la solicitud template en route:", json.dumps(data, indent=4))
 
-    if "userData" not in data or "messageData" not in data:
-        return jsonify({"error": "El JSON debe contener 'userData' y 'messageData'"}), 400
+    # Asegurarte de que 'data', 'userData' y 'messageData' estén en el cuerpo de la solicitud
+    if "data" not in data or "userData" not in data["data"] or "messageData" not in data["data"]:
+        return jsonify({"error": "El JSON debe contener 'data' con 'userData' y 'messageData'"}), 400
 
-    userData = data["userData"]
-    messageData = data["messageData"]
+    # Acceder a userData y messageData a través del objeto 'data'
+    userData = data["data"]["userData"]
+    messageData = data["data"]["messageData"]
 
     print("Datos del usuario userData", userData)
     print("Datos del mensaje messageData", messageData)
