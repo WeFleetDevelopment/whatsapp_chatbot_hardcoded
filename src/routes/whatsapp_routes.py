@@ -303,14 +303,13 @@ def route_send_template_message():
 
     try: 
         # Implementar la lógica de envío de mensaje basada en userData y messageData
-        response = send_template_message(
+        send_template_message(
             id_config,
             recipient,
             template_name,
             template_parameters,
             template_type
         )
-        return jsonify({"success": True, "response": response}), 200
     except Exception as e:
         print("Error en send_template_message:", str(e))
         return jsonify({"error": str(e)}), 500
