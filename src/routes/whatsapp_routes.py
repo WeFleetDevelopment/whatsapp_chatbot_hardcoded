@@ -274,42 +274,33 @@ def send_file(type):
 # Ruta para obtener el usuario y la plantilla de mensaje para enviarle el mensaje de plantilla al usuario
 @whatsapp_routes.route("/whatsapp/send_template_message", methods=["POST"])
 def route_send_template_message():
-    # Extraer el cuerpo completo de la solicitud POST
     data = request.json
-
     print("Datos de la solicitud template en route:", json.dumps(data, indent=4))
 
-    # Verificar que 'userData' y 'messageData' estén en el cuerpo de la solicitud
     if "userData" not in data or "messageData" not in data:
         return jsonify({"error": "El JSON debe contener 'userData' y 'messageData'"}), 400
-    
-    # Extraemos userData y messageData del cuerpo de la solicitud
+
     userData = data["userData"]
     messageData = data["messageData"]
-    
+
     print("Datos del usuario userData", userData)
     print("Datos del mensaje messageData", messageData)
-    
-    # Asumimos que estas son las funciones y parámetros requeridos para enviar un mensaje
 
-     #dUserData
-    id_config = userData['id_config'],
-    recipient = userData['phone'],
+    id_config = userData['id_config']  # removed comma
+    recipient = userData['phone']  # removed comma
+    template_name = messageData['template_name']  # removed comma
+    template_parameters = messageData['template_parameters']  # assuming this is always present
+    template_type = messageData['template_type']  # assuming this is always present
 
-    # MessageData
-    template_name = messageData['template_name'],
-    template_parameters = messageData['template_parameters']  # Usando indexación directa
-    template_type = messageData['template_type']  # Usando indexación directa
-
-    try: 
-        # Implementar la lógica de envío de mensaje basada en userData y messageData
-        send_template_message(
+    try:
+        response = send_template_message(
             id_config,
             recipient,
             template_name,
             template_parameters,
             template_type
         )
+        return jsonify({"success": True, "response": response}), 200
     except Exception as e:
         print("Error en send_template_message:", str(e))
         return jsonify({"error": str(e)}), 500

@@ -770,8 +770,6 @@ def registerAccountUser(id_bot,phone, data):
 def send_template_message(id_bot, phone, template_name, template_parameters, template_type):
     print("Datos obtenidos template en service", id_bot, phone, template_name, template_parameters, template_type)
 
-    if(id_bot == None or id_bot == ''):
-        return False
      
     #1- Obtener el identificador del telefono del chatbot de la empresa
     identification_phone_chatbot = get_phone_chatbot_id(id_bot)
@@ -786,7 +784,7 @@ def send_template_message(id_bot, phone, template_name, template_parameters, tem
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {tokenChatbot}'
     }
-
+    
     components = []
 
     # Agregar parámetros de la plantilla solo si no están vacíos
