@@ -265,73 +265,6 @@ def send_audio(token, url, audio, recipient_id, link=True):
     print("Response from WhatsApp API:", response.text)
     return response.json()
 
-# Function for send message of template to user
-def send_template_message(id_bot, phone, template_name, template_parameters, template_type):
-    print("Datos obtenidos template en service", id_bot, phone, template_name, template_parameters, template_type)
-
-    if(id_bot == None or id_bot == ''):
-        return False
-     
-    #1- Obtener el identificador del telefono del chatbot de la empresa
-    identification_phone_chatbot = get_phone_chatbot_id(id_bot)
-    print("Identificación del teléfono del chatbot:", identification_phone_chatbot)
-    
-    url = f'https://graph.facebook.com/v21.0/{identification_phone_chatbot}/messages'
-    tokenChatbot = get_token_chatbot(id_bot)
-
-    print("Token obtenido:", tokenChatbot)
-    
-    headers = { 
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {tokenChatbot}'
-    }
-
-    components = []
-
-    # Agregar parámetros de la plantilla solo si no están vacíos
-    if template_parameters:
-        components.append({
-            'type': 'body',
-            'parameters': template_parameters
-        })
-
-    # Si el tipo de plantilla es "form", agregar un componente de botón de flujo
-    if template_type == 'form':
-        components.append({
-            'type': 'button',
-            'sub_type': 'FLOW',
-            'index': 0,
-            'parameters': [
-                {
-                    'type': 'text',
-                    'text': 'Completar producción'
-                }
-            ]
-        })
-
-    data = {
-        'messaging_product': 'whatsapp',
-        'recipient_type': 'individual', 
-        'to': phone,
-        'type': 'template',
-        'template': {
-            'name': template_name,
-            'language': {
-                'code': 'es'  # Asume que el idioma es español de España, ajusta según sea necesario
-            },
-            'components': components if components else None  # Solo agregar componentes si no están vacíos
-        }
-    }
-
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-
-    if response.status_code == 200:
-        print('Mensaje de plantilla enviado correctamente')
-        return response.status_code
-    else:
-        print('Error al enviar el mensaje de plantilla') 
-        print('Mensaje de error:', response.text)  # Imprime el mensaje de error
-        return response.status_code 
 
 #-------------------------------------- Validations WhatsApp Chatbot y obtencion de datos importantes ---------------------------------
 
@@ -833,4 +766,70 @@ def registerAccountUser(id_bot,phone, data):
 
 
 
-#------ Nuevas funciones -------------
+# Function for send message of template to user
+def send_template_message(id_bot, phone, template_name, template_parameters, template_type):
+    print("Datos obtenidos template en service", id_bot, phone, template_name, template_parameters, template_type)
+
+    if(id_bot == None or id_bot == ''):
+        return False
+     
+    #1- Obtener el identificador del telefono del chatbot de la empresa
+    identification_phone_chatbot = get_phone_chatbot_id(id_bot)
+    print("Identificación del teléfono del chatbot:", identification_phone_chatbot)
+    
+    url = f'https://graph.facebook.com/v21.0/{identification_phone_chatbot}/messages'
+    tokenChatbot = get_token_chatbot(id_bot)
+
+    print("Token obtenido:", tokenChatbot)
+    
+    headers = { 
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {tokenChatbot}'
+    }
+
+    components = []
+
+    # Agregar parámetros de la plantilla solo si no están vacíos
+    if template_parameters:
+        components.append({
+            'type': 'body',
+            'parameters': template_parameters
+        })
+
+    # Si el tipo de plantilla es "form", agregar un componente de botón de flujo
+    if template_type == 'form':
+        components.append({
+            'type': 'button',
+            'sub_type': 'FLOW',
+            'index': 0,
+            'parameters': [
+                {
+                    'type': 'text',
+                    'text': 'Completar producción'
+                }
+            ]
+        })
+
+    data = {
+        'messaging_product': 'whatsapp',
+        'recipient_type': 'individual', 
+        'to': phone,
+        'type': 'template',
+        'template': {
+            'name': template_name,
+            'language': {
+                'code': 'es'  # Asume que el idioma es español de España, ajusta según sea necesario
+            },
+            'components': components if components else None  # Solo agregar componentes si no están vacíos
+        }
+    }
+
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+
+    if response.status_code == 200:
+        print('Mensaje de plantilla enviado correctamente')
+        return response.status_code
+    else:
+        print('Error al enviar el mensaje de plantilla') 
+        print('Mensaje de error:', response.text)  # Imprime el mensaje de error
+        return response.status_code 

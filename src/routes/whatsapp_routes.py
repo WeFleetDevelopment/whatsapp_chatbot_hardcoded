@@ -312,6 +312,7 @@ def route_send_template_message():
         )
         return jsonify({"success": True, "response": response}), 200
     except Exception as e:
+        print("Error en send_template_message:", str(e))
         return jsonify({"error": str(e)}), 500
 
 # @whatsapp_routes.route("/whatsapp/send_template_message", methods=["POST"])
