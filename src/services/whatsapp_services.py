@@ -267,7 +267,7 @@ def send_audio(token, url, audio, recipient_id, link=True):
 
 # Function for send message of template to user
 def send_template_message(id_bot, phone, template_name, template_parameters, template_type):
-    print("Datos obtenidos template", id_bot, phone, template_name, template_parameters, template_type)
+    print("Datos obtenidos template en service", id_bot, phone, template_name, template_parameters, template_type)
 
     if(id_bot == None or id_bot == ''):
         return False

@@ -277,7 +277,7 @@ def route_send_template_message():
     # Extraer el cuerpo completo de la solicitud POST
     data = request.json
 
-    print("Datos de la solicitud template:", json.dumps(data, indent=4))
+    print("Datos de la solicitud template en route:", json.dumps(data, indent=4))
 
     # Verificar que 'userData' y 'messageData' estén en el cuerpo de la solicitud
     if "userData" not in data or "messageData" not in data:
@@ -291,14 +291,24 @@ def route_send_template_message():
     print("Datos del mensaje messageData", messageData)
     
     # Asumimos que estas son las funciones y parámetros requeridos para enviar un mensaje
-    try:
+
+     #dUserData
+    id_config = userData['id_config'],
+    recipient = userData['phone'],
+
+    # MessageData
+    template_name = messageData['template_name'],
+    template_parameters = messageData['template_parameters']  # Usando indexación directa
+    template_type = messageData['template_type']  # Usando indexación directa
+
+    try: 
         # Implementar la lógica de envío de mensaje basada en userData y messageData
         response = send_template_message(
-            id_config=userData['id_config'],
-            recipient=userData['phone'],
-            template_name=messageData['template_name'],
-            template_parameters=messageData.get('template_parameters', []),
-            template_type=messageData.get('template_type')
+            id_config,
+            recipient,
+            template_name,
+            template_parameters,
+            template_type
         )
         return jsonify({"success": True, "response": response}), 200
     except Exception as e:
