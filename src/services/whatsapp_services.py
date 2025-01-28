@@ -767,7 +767,7 @@ def registerAccountUser(id_bot,phone, data):
 
 
 # Function for send message of template to user
-def send_template_message(id_bot, phone, template_name, template_parameters, template_type):
+def send_template_message_user(id_bot, phone, template_name, template_parameters, template_type):
     print("Datos obtenidos template en service", id_bot, phone, template_name, template_parameters, template_type)
 
      

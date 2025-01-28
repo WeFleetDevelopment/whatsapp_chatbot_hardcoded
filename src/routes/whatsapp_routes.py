@@ -14,11 +14,10 @@ from io import BytesIO
 
 #Services of WhtasApp
 from src.services.whatsapp_services import ( 
-    save_user_message,send_template_message,handle_file,get_form_data,registerAccountUser,validate_business_chatbot,get_name,
+    save_user_message,handle_file,get_form_data,registerAccountUser,validate_business_chatbot,get_name,
     get_message,get_mobile,get_message_type,changed_field,is_message,get_delivery,get_interactive_response,send_message_user,send_document_user,
-    send_image_user,send_audio_user
-    
-)  
+    send_image_user,send_audio_user,send_template_message_user
+)
 #Messages of the bot for send
 # from src.utils.messages import msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10, msgcomunaerror, msg11, msg12, msg13, msg14, msg15, msg16, msg17, msg18, msgpresencial, msgpresencialconfirmacion_no, msgpresencialconfirmacion_si, msg19, msg20, msg21, msg22, msg23, msg24, msg25, msg26, msg27, msg28, msg29, certificadopeoneta, msg30, msg31, msg32, msg33, msg34, msg35, msg36, msg37, msg38, msg39, msg40, msg41, msg42, msg43, msg44, msg45, documento_corregido,
 from src.utils.messages import message1, message2, message3, message4, message5, urlWeFleet ,message_error1, message_error2
@@ -286,14 +285,17 @@ def route_send_template_message():
     print("Datos del usuario userData", userData)
     print("Datos del mensaje messageData", messageData)
 
-    id_config = userData['id_config']  # removed comma
-    recipient = userData['phone']  # removed comma
-    template_name = messageData['template_name']  # removed comma
+    id_config = userData['id_config']  # asegúrate de que no haya una coma al final
+    recipient = userData['phone']      # asegúrate de que no haya una coma al final
+    template_name = messageData['template_name'] # removed comma
     template_parameters = messageData['template_parameters']  # assuming this is always present
     template_type = messageData['template_type']  # assuming this is always present
 
+    
+
     try:
-        response = send_template_message(
+        
+        response = send_template_message_user(
             id_config,
             recipient,
             template_name,
