@@ -766,14 +766,16 @@ def registerAccountUser(id_bot,phone, data):
     
 
 #2- Guardar la produccion diaria del usuario y mostrarla por consola
-def save_user_daily_production(phone, data):
+def save_user_daily_production(phone, data, id_bot):
     print("Datos obtenidos para guardar producción diaria", phone, data)
+
+    
 
     #1- Create the url to Save the daily production and obtain token to send
     # url = f'{BASE_URL}/administrator/operations/chat/whatsapp/user/save-user-daily-production/{phone}'
     url = f'{BASE_URL}/api/messages/operations/chat/whatsapp/user/save-user-daily-production/{phone}'
     token = os.getenv('TOKEN_CHATBOT_WHATSAPP_OPERATION')
-     
+    
     #2- Send datas to back-end to save it
     headers = {
         'Content-Type': 'application/json',
@@ -787,6 +789,7 @@ def save_user_daily_production(phone, data):
         newMessage = '¡Gracias por completar la producción diaria!'
         url = f'{BASE_URL_CHATBOT}/whatsapp/send_message'
         data = {
+           'id_config': id_bot,
            'recipient': phone,
            'message': newMessage
         }
@@ -803,7 +806,7 @@ def save_user_daily_production(phone, data):
 def send_template_message_user(id_bot, phone, template_name, template_parameters, template_type):
     print("Datos obtenidos template en service", id_bot, phone, template_name, template_parameters, template_type)
 
-     
+    
     #1- Obtener el identificador del telefono del chatbot de la empresa
     identification_phone_chatbot = get_phone_chatbot_id(id_bot)
     print("Identificación del teléfono del chatbot:", identification_phone_chatbot)
