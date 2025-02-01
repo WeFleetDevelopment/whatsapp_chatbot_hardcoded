@@ -32,6 +32,8 @@ TEMP_DIR = os.path.join(os.path.dirname(__file__), '..', 'temp')
 #Original
 BASE_URL = 'https://hoktus-api-messages-prod-production.up.railway.app'
 BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-prod-production.up.railway.app'
+
+
 #Prueba 1
 # BASE_URL = 'https://hoktus-api-messages-test-production.up.railway.app'
 # BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-test-production.up.railway.app'
@@ -763,7 +765,38 @@ def registerAccountUser(id_bot,phone, data):
     
     
 
+#2- Guardar la produccion diaria del usuario y mostrarla por consola
+def save_user_daily_production(phone, data):
+    print("Datos obtenidos para guardar producción diaria", phone, data)
 
+    #1- Create the url to Save the daily production and obtain token to send
+    # url = f'{BASE_URL}/administrator/operations/chat/whatsapp/user/save-user-daily-production/{phone}'
+    url = f'{BASE_URL}/api/messages/operations/chat/whatsapp/user/save-user-daily-production/{phone}'
+    token = os.getenv('TOKEN_CHATBOT_WHATSAPP_OPERATION')
+     
+    #2- Send datas to back-end to save it
+    headers = {
+        'Content-Type': 'application/json',
+        'auth-chatbot': token
+    }
+    response = requests.post(url, headers=headers, json=data)
+    
+    
+
+    if(response.status_code >= 200 and response.status_code <= 204):
+        newMessage = '¡Gracias por completar la producción diaria!'
+        url = f'{BASE_URL_CHATBOT}/whatsapp/send_message'
+        data = {
+           'recipient': phone,
+           'message': newMessage
+        }
+        response = requests.post(url, json=data)
+        if response.status_code >= 200 and response.status_code <= 204:
+           print('Mensaje de finalizacion de produccion enviado correctamente')
+        else:
+           print('Error al enviar el mensaje de agradecimiento')
+    
+    
 
 
 # Function for send message of template to user

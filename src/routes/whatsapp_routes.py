@@ -14,7 +14,7 @@ from io import BytesIO
 
 #Services of WhtasApp
 from src.services.whatsapp_services import ( 
-    save_user_message,handle_file,get_form_data,registerAccountUser,validate_business_chatbot,get_name,
+    save_user_message,handle_file,get_form_data,save_user_daily_production,validate_business_chatbot,get_name,
     get_message,get_mobile,get_message_type,changed_field,is_message,get_delivery,get_interactive_response,send_message_user,send_document_user,
     send_image_user,send_audio_user,send_template_message_user
 )
@@ -66,7 +66,7 @@ def webhook_whatsapp():
             debug_message = "TJN2SVVG" 
             if message_type == "text":     
                 debug_message = get_message(data) 
-               
+            
             #1-  Capturar  mensajes de Texto    
             if message_type == "text":
                 message_received =  get_message(data)  
@@ -89,9 +89,9 @@ def webhook_whatsapp():
                 print("Mensaje Obtenido",message_received) 
                 if message_received:  # Verificar si el mensaje recibido no está vacío
                     form_data = get_form_data(message_received)
-                    registerAccountUser(mobile, form_data)  
+                    save_user_daily_production(mobile, form_data) 
 
-              
+            
 
             #3-  Capturar mensajes con Stickers
             if message_type == "sticker":
@@ -266,7 +266,7 @@ def send_file(type):
         return jsonify({"success": True, "message": f"Archivo enviado correctamente al numero {recipient}"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-  
+
 
 #------------------------- Rutas para la comunicacion del servidor que guardara y enviara los mensajes --------------- #
 
@@ -292,9 +292,9 @@ def route_send_template_message():
     template_name = messageData['template_name'] # removed comma
     template_parameters = messageData['template_parameters']  # assuming this is always present
     template_type = messageData['template_type']  # assuming this is always present
-
     
-
+    
+ 
     try:
         
         response = send_template_message_user(
