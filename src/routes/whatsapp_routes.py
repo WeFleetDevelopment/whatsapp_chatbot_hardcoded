@@ -52,7 +52,7 @@ def webhook_whatsapp():
             return request.args.get('hub.challenge')
         else:
             return "Invalid verification token"
-
+    
     # Handle Webhook Subscriptions
     data = request.get_json()
     if changed_field(data) == "messages":

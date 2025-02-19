@@ -321,7 +321,7 @@ def send_message_user(id_bot, message, recipient):
         print(f"Mensaje enviado a {recipient}: {message}")
     else:
         print(f"Error al enviar mensaje a {recipient}: {response.get('error', 'Error desconocido')}")
-   
+
 
 # Function for send document to user
 def send_document_user(id_bot, file_url, recipient, name_file):
@@ -425,7 +425,8 @@ def save_user_message(id_bot, phone, message, name, type_message):
         'phone': phone,
         'message': message, 
         'name': name,  
-        'type_message': type_message
+        'type_message': type_message,
+        'platform': 'API'
     }  
     token = os.getenv('TOKEN_CHATBOT_WHATSAPP_BUSINESS') 
     headers = {
@@ -678,7 +679,8 @@ def send_file_to_backend(id_bot, temp_path, phone, name, type_message, original_
             'name': name,
             'type_message': type_message,
             'file_name': original_filename,
-            'file_type': mime_type
+            'file_type': mime_type,
+            'platform': 'API'
         }
         token = os.getenv('TOKEN_CHATBOT_WHATSAPP_BUSINESS')
         headers = {
@@ -768,7 +770,7 @@ def registerAccountUser(id_bot,phone, data):
 #2- Guardar la produccion diaria del usuario y mostrarla por consola
 def save_user_daily_production(phone, data, id_bot):
     print("Datos obtenidos para guardar producción diaria", phone, data)
-
+    
     
 
     #1- Create the url to Save the daily production and obtain token to send
