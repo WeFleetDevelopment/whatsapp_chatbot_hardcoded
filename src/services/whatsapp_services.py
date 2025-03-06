@@ -165,6 +165,20 @@ def get_interactive_response(data):
         return message_data["messages"][0]["interactive"]
     except (KeyError, IndexError):
         return None
+    
+def get_interactive_response_flow(data):
+    """Extrae la respuesta interactiva o NFM reply del mensaje."""
+    message_data = preprocess(data)
+    try:
+        if "nfm_reply" in message_data["messages"][0]:  # Verificar si es un NFM Reply
+            return message_data["messages"][0]["nfm_reply"]
+        elif "interactive" in message_data["messages"][0]:  # Si es un mensaje interactivo
+            return message_data["messages"][0]["interactive"]
+        else:
+            return None
+    except (KeyError, IndexError):
+        return None
+    
 
 def get_delivery(data):
     """Obtiene la información de entrega del mensaje."""

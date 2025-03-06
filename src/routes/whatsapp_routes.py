@@ -16,7 +16,7 @@ from io import BytesIO
 from src.services.whatsapp_services import ( 
     save_user_message,handle_file,get_form_data,save_user_daily_production,validate_business_chatbot,get_name,
     get_message,get_mobile,get_message_type,changed_field,is_message,get_delivery,get_interactive_response,send_message_user,send_document_user,
-    send_image_user,send_audio_user,send_template_message_user
+    send_image_user,send_audio_user,send_template_message_user,get_interactive_response_flow
 )
 #Messages of the bot for send
 # from src.utils.messages import msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10, msgcomunaerror, msg11, msg12, msg13, msg14, msg15, msg16, msg17, msg18, msgpresencial, msgpresencialconfirmacion_no, msgpresencialconfirmacion_si, msg19, msg20, msg21, msg22, msg23, msg24, msg25, msg26, msg27, msg28, msg29, certificadopeoneta, msg30, msg31, msg32, msg33, msg34, msg35, msg36, msg37, msg38, msg39, msg40, msg41, msg42, msg43, msg44, msg45, documento_corregido,
@@ -92,21 +92,20 @@ def webhook_whatsapp():
             if message_type == "interactive":
                 # Capturar el texto del formulario y pasarlo como mensaje a "save_user_message"
                 message_received = get_interactive_response(data)
-                print("Mensaje Obtenido Flow/Formulario", json.dumps(message_received, indent=4))
+                message_received_flow = get_interactive_response_flow(data)
+                print("Mensaje Obtenido Flow/Formulario", json.dumps(message_received_flow, indent=4))
 
                 if message_received:  # Verificar si el mensaje recibido no está vacío
                     form_data = get_form_data(message_received)
 
-                    # 🔹 EXTRAER ID Y NOMBRE DEL FORMULARIO (FLOW)
-                    form_info = message_received.get("form", {})  # Obtener objeto completo del formulario (Flow)
-                    form_id = form_info.get("id", "UNKNOWN_FORM")  # Extraer ID del Flow
-                    form_name = form_info.get("name", "UNKNOWN_FORM_NAME")  # Extraer Nombre del Flow
+                # 🔹 EXTRAER NOMBRE DEL FORMULARIO (FLOW) DESDE message_received_flow
+                form_name = message_received_flow.get("name", "UNKNOWN_FORM_NAME")  # Extraer Nombre del Flow
 
-                    # ✅ IMPRIMIR INFORMACIÓN COMPLETA DEL FLOW
-                    print(f"🔍 Datos completos del Flow recibido: {json.dumps(form_info, indent=4)}")  # Muestra el JSON del Flow
-                    print(f"📝 Flow Respondido: ID={form_id}, Nombre={form_name}")
+                # ✅ IMPRIMIR INFORMACIÓN COMPLETA DEL FLOW
+                print(f"🔍 Datos completos del Flow recibido: {json.dumps(message_received_flow, indent=4)}")
+                print(f"📝 Flow Respondido: Nombre={form_name}")
 
-                    save_user_daily_production(mobile, form_data, id_bot) 
+                save_user_daily_production(mobile, form_data, id_bot) 
 
             
             
