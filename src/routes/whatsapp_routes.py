@@ -6,7 +6,7 @@ import requests
 import pytz
 #Config of the api of whatsapp    
 # from src.config.config_Whatsapp import messenger,logging
-
+import re
 # Image
 from PIL import Image
 from io import BytesIO
@@ -25,11 +25,13 @@ from src.utils.messages import message1, message2, message3, message4, message5,
 from src.utils.utils import button_reply,comuna_en_lista
 
 whatsapp_routes = Blueprint('webhook_whatsapp', __name__)
- 
+
+
+
 # Ruta para recibir mensajes / 
 @whatsapp_routes.route("/whatsapp/webhook", methods=["POST", "GET"])
 def webhook_whatsapp():
-        # Imprime todo el cuerpo de la solicitud
+    # Imprime todo el cuerpo de la solicitud
     # print("Raw request data:", request.data)
     # print("JSON request data:", json.dumps(request.get_json(), indent=4))
      
@@ -37,6 +39,10 @@ def webhook_whatsapp():
     id_bot = request.args.get('id_bot', None)
     if not id_bot:
         return "Missing configuration ID", 400
+    
+    # Validar que el id_bot no sea None y cumpla con el formato permitido
+    # if not id_bot or not re.fullmatch(r'^[A-Z0-9]+$', id_bot):
+    #     return jsonify({"error": "Invalid configuration ID"}), 400
     
     #2- Validamos que la empresa exista
     token_verified = validate_business_chatbot(id_bot)
@@ -89,6 +95,10 @@ def webhook_whatsapp():
                 print("Mensaje Obtenido",message_received) 
                 if message_received:  # Verificar si el mensaje recibido no está vacío
                     form_data = get_form_data(message_received)
+
+                    # 🔹 EXTRAER ID DEL FORMULARIO
+                    form_id = message_received.get("id", "UNKNOWN_FORM")  # Extraer el ID del formulario
+                    print(f"📝 Formulario Respondido: {form_id}")
                     save_user_daily_production(mobile, form_data, id_bot) 
 
             
