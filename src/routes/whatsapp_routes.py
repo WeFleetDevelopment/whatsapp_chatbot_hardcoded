@@ -92,17 +92,24 @@ def webhook_whatsapp():
             if message_type == "interactive":
                 # Capturar el texto del formulario y pasarlo como mensaje a "save_user_message"
                 message_received = get_interactive_response(data)
-                print("Mensaje Obtenido",message_received) 
+                print("Mensaje Obtenido Flow/Formulario", json.dumps(message_received, indent=4))
+
                 if message_received:  # Verificar si el mensaje recibido no está vacío
                     form_data = get_form_data(message_received)
 
-                    # 🔹 EXTRAER ID DEL FORMULARIO
-                    form_id = message_received.get("id", "UNKNOWN_FORM")  # Extraer el ID del formulario
-                    print(f"📝 Formulario Respondido: {form_id}")
+                    # 🔹 EXTRAER ID Y NOMBRE DEL FORMULARIO (FLOW)
+                    form_info = message_received.get("form", {})  # Obtener objeto completo del formulario (Flow)
+                    form_id = form_info.get("id", "UNKNOWN_FORM")  # Extraer ID del Flow
+                    form_name = form_info.get("name", "UNKNOWN_FORM_NAME")  # Extraer Nombre del Flow
+
+                    # ✅ IMPRIMIR INFORMACIÓN COMPLETA DEL FLOW
+                    print(f"🔍 Datos completos del Flow recibido: {json.dumps(form_info, indent=4)}")  # Muestra el JSON del Flow
+                    print(f"📝 Flow Respondido: ID={form_id}, Nombre={form_name}")
+
                     save_user_daily_production(mobile, form_data, id_bot) 
 
             
-
+            
             #3-  Capturar mensajes con Stickers
             if message_type == "sticker":
                 if message_received:
