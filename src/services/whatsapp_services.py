@@ -783,7 +783,7 @@ def registerAccountUser(id_bot,phone, data):
     
 
 #-------------------------------------- Function of Flows/Forms Sendings ---------------------------------#
-
+# Function to verify which type of form and send the data correctly
 def send_forms_to_save(id_bot, phone, form_data, form_name):
     try:
         # ✅ Imprimir los datos para verificar que se reciben correctamente
@@ -793,6 +793,17 @@ def send_forms_to_save(id_bot, phone, form_data, form_name):
         print(f"📝 Nombre del formulario: {form_name}")
         print(f"🔍 Datos del formulario:")
         print(json.dumps(form_data, indent=4))  # Formatear JSON para que sea legible
+
+        # ✅ Usamos un switch para manejar distintos formularios
+        match form_name:
+            case "form_cierre_op_bs":
+                save_user_daily_production(phone, form_data, id_bot)
+            
+            case "form_otro_proceso":
+                print("⚠ Formulario 'form_otro_proceso' no implementado.")
+            
+            case _:
+                print(f"⚠ Formulario '{form_name}' no reconocido. No se procesará.")
 
     except Exception as e:
         print(f"❌ Error en send_forms_to_save: {str(e)}")

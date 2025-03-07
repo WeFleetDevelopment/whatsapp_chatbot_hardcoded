@@ -26,6 +26,12 @@ from src.utils.utils import button_reply,comuna_en_lista
 
 whatsapp_routes = Blueprint('webhook_whatsapp', __name__)
 
+# Types of files
+file_types = {
+    "document": False,
+    "image": True,
+    "audio": False
+}
 
 
 # Ruta para recibir mensajes / 
@@ -96,31 +102,26 @@ def webhook_whatsapp():
             # Capturar mensajes con Formularios interactivos
             if message_type == "interactive":
                 try:
-                   # Capturar el texto del formulario y pasarlo como mensaje
-                   message_received = get_interactive_response(data)
-                   message_received_flow = get_interactive_response_flow(data)
-        
-                   print("📩 Mensaje Obtenido Flow/Formulario:", json.dumps(message_received_flow, indent=4))
+                    # ✅ Obtener los datos correctamente
+                    message_received = get_interactive_response(data)
 
-                   if message_received:  # Verificar si el mensaje recibido no está vacío
-                      form_data = get_form_data(message_received)
+                    if message_received:  # Verificar si el mensaje recibido no está vacío
+                        form_data = get_form_data(message_received)
 
-                      # 🔹 Extraer y convertir el response_json a un diccionario
-                      response_json_str = message_received_flow.get("nfm_reply", {}).get("response_json", "{}")
-                      form_data = json.loads(response_json_str)  # Convertimos a JSON
-                      form_name = form_data.get("form_name", "UNKNOWN_FORM_NAME")  # Extraer nombre del formulario
+                        # 🔹 Extraer y convertir el `response_json` a un diccionario
+                        response_json_str = form_data.get("response_json", "{}")
+                        form_data = json.loads(response_json_str)  # Convertimos a JSON
+                        form_name = form_data.get("form_name", "UNKNOWN_FORM_NAME")  # Extraer nombre del formulario
 
-                      # ✅ Imprimir los datos extraídos en consola
-                      print(f"🔍 Datos completos del formulario recibido: {json.dumps(form_data, indent=4)}")
-                      print(f"📝 Nombre del formulario recibido: {form_name}")
-                      print(f"📲 Número de usuario: {mobile}")
-                      print(f"🆔 ID del bot: {id_bot}")
+                        # ✅ Imprimir los datos extraídos en consola
+                        print(f"📝 Nombre del formulario recibido: {form_name}")
+                        print(f"📲 Número de usuario: {mobile}")
+                        print(f"🆔 ID del bot: {id_bot}")
+                        print(f"🔍 Datos del formulario:")
+                        print(json.dumps(form_data, indent=4))
 
-                      # ✅ Enviar los datos a la función send_forms_to_save para verificar la correcta obtención de datos
-                      send_forms_to_save(id_bot, mobile, form_data, form_name)
-
-                      # ✅ Mantener la función original sin tocarla
-                      save_user_daily_production(mobile, form_data, id_bot)
+                        # ✅ Enviar los datos a `send_forms_to_save`
+                        send_forms_to_save(id_bot, mobile, form_data, form_name)
 
                 except Exception as e:
                     print(f"❌ Error al procesar el formulario interactivo: {e}")
@@ -131,18 +132,11 @@ def webhook_whatsapp():
             if message_type == "sticker":
                 if message_received:
                     save_user_message(id_bot,mobile, message_received, name,message_type)
-                     
+            
+            
             # Capturar y enviar documentos
-            elif message_type == "document":
-                handle_file(id_bot,data, mobile, name, message_type, is_image=False)
-
-            # Capturar y enviar imágenes
-            elif message_type == "image":
-                handle_file(id_bot,data, mobile, name, message_type, is_image=True)
-
-            # Capturar y enviar audios
-            elif message_type == "audio":
-                handle_file(id_bot,data, mobile, name, message_type, is_image=False)
+            if message_type in file_types:
+                handle_file(id_bot, data, mobile, name, message_type, is_image=file_types[message_type])
          
             delivery = get_delivery(data)
             if delivery:
