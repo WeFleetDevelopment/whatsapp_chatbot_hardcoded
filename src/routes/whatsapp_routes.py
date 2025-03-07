@@ -34,6 +34,7 @@ file_types = {
 }
 
 
+
 # Ruta para recibir mensajes / 
 @whatsapp_routes.route("/whatsapp/webhook", methods=["POST", "GET"])
 def webhook_whatsapp():
@@ -106,22 +107,22 @@ def webhook_whatsapp():
                     message_received = get_interactive_response(data)
 
                     if message_received:  # Verificar si el mensaje recibido no está vacío
-                        form_data = get_form_data(message_received)
+                       form_data = get_form_data(message_received)
 
-                        # 🔹 Extraer y convertir el `response_json` a un diccionario
-                        response_json_str = form_data.get("response_json", "{}")
-                        form_data = json.loads(response_json_str)  # Convertimos a JSON
-                        form_name = form_data.get("form_name", "UNKNOWN_FORM_NAME")  # Extraer nombre del formulario
+                       # 🔹 Extraer y convertir el `response_json` a un diccionario
+                       response_json_str = form_data.get("response_json", "{}")
+                       form_data_dict = json.loads(response_json_str)  # Convertimos a JSON
+                       form_name = form_data_dict.get("form_name", "UNKNOWN_FORM_NAME")  # Extraer nombre del formulario
 
-                        # ✅ Imprimir los datos extraídos en consola
-                        print(f"📝 Nombre del formulario recibido: {form_name}")
-                        print(f"📲 Número de usuario: {mobile}")
-                        print(f"🆔 ID del bot: {id_bot}")
-                        print(f"🔍 Datos del formulario:")
-                        print(json.dumps(form_data, indent=4))
+                       # ✅ Imprimir los datos extraídos en consola
+                       print(f"📝 Nombre del formulario recibido: {form_name}")
+                       print(f"📲 Número de usuario: {mobile}")
+                       print(f"🆔 ID del bot: {id_bot}")
+                       print(f"🔍 Datos del formulario:")
+                       print(json.dumps(form_data_dict, indent=4))
 
-                        # ✅ Enviar los datos a `send_forms_to_save`
-                        send_forms_to_save(id_bot, mobile, form_data, form_name)
+                       # ✅ Enviar los datos a `send_forms_to_save`
+                       send_forms_to_save(id_bot, mobile, form_data_dict, form_name)
 
                 except Exception as e:
                     print(f"❌ Error al procesar el formulario interactivo: {e}")
@@ -133,7 +134,7 @@ def webhook_whatsapp():
                 if message_received:
                     save_user_message(id_bot,mobile, message_received, name,message_type)
             
-            
+
             # Capturar y enviar documentos
             if message_type in file_types:
                 handle_file(id_bot, data, mobile, name, message_type, is_image=file_types[message_type])
