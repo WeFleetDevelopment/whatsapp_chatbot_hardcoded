@@ -16,7 +16,7 @@ from io import BytesIO
 from src.services.whatsapp_services import ( 
     save_user_message,handle_file,get_form_data,save_user_daily_production,validate_business_chatbot,get_name,
     get_message,get_mobile,get_message_type,changed_field,is_message,get_delivery,get_interactive_response,send_message_user,send_document_user,
-    send_image_user,send_audio_user,send_template_message_user,get_interactive_response_flow
+    send_image_user,send_audio_user,send_template_message_user,get_interactive_response_flow,send_forms_to_save
 )
 #Messages of the bot for send
 # from src.utils.messages import msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10, msgcomunaerror, msg11, msg12, msg13, msg14, msg15, msg16, msg17, msg18, msgpresencial, msgpresencialconfirmacion_no, msgpresencialconfirmacion_si, msg19, msg20, msg21, msg22, msg23, msg24, msg25, msg26, msg27, msg28, msg29, certificadopeoneta, msg30, msg31, msg32, msg33, msg34, msg35, msg36, msg37, msg38, msg39, msg40, msg41, msg42, msg43, msg44, msg45, documento_corregido,
@@ -36,10 +36,10 @@ def webhook_whatsapp():
     # print("JSON request data:", json.dumps(request.get_json(), indent=4))
 
     # 📌 IMPRIMIR TODO EL CUERPO DE LA SOLICITUD PARA DEPURACIÓN
-    print("🔍 RAW JSON RECIBIDO EN WEBHOOK:")
-    print(json.dumps(request.get_json(), indent=4))  # Formatea el JSON para que sea legible
+    # print("🔍 RAW JSON RECIBIDO EN WEBHOOK:")
+    # print(json.dumps(request.get_json(), indent=4))  # Formatea el JSON para que sea legible
 
-     
+    
     #1- Verificar el id de la configuracion de la empresa, que exista en la url
     id_bot = request.args.get('id_bot', None)
     if not id_bot:
@@ -95,22 +95,35 @@ def webhook_whatsapp():
 
             # Capturar mensajes con Formularios interactivos
             if message_type == "interactive":
-                # Capturar el texto del formulario y pasarlo como mensaje a "save_user_message"
-                message_received = get_interactive_response(data)
-                message_received_flow = get_interactive_response_flow(data)
-                print("Mensaje Obtenido Flow/Formulario", json.dumps(message_received_flow, indent=4))
+                try:
+                   # Capturar el texto del formulario y pasarlo como mensaje
+                   message_received = get_interactive_response(data)
+                   message_received_flow = get_interactive_response_flow(data)
+        
+                   print("📩 Mensaje Obtenido Flow/Formulario:", json.dumps(message_received_flow, indent=4))
 
-                if message_received:  # Verificar si el mensaje recibido no está vacío
-                    form_data = get_form_data(message_received)
+                   if message_received:  # Verificar si el mensaje recibido no está vacío
+                      form_data = get_form_data(message_received)
 
-                # 🔹 EXTRAER NOMBRE DEL FORMULARIO (FLOW) DESDE message_received_flow
-                form_name = message_received_flow.get("name", "UNKNOWN_FORM_NAME")  # Extraer Nombre del Flow
+                      # 🔹 Extraer y convertir el response_json a un diccionario
+                      response_json_str = message_received_flow.get("nfm_reply", {}).get("response_json", "{}")
+                      form_data = json.loads(response_json_str)  # Convertimos a JSON
+                      form_name = form_data.get("form_name", "UNKNOWN_FORM_NAME")  # Extraer nombre del formulario
 
-                # ✅ IMPRIMIR INFORMACIÓN COMPLETA DEL FLOW
-                print(f"🔍 Datos completos del Flow recibido: {json.dumps(message_received_flow, indent=4)}")
-                print(f"📝 Flow Respondido: Nombre={form_name}")
+                      # ✅ Imprimir los datos extraídos en consola
+                      print(f"🔍 Datos completos del formulario recibido: {json.dumps(form_data, indent=4)}")
+                      print(f"📝 Nombre del formulario recibido: {form_name}")
+                      print(f"📲 Número de usuario: {mobile}")
+                      print(f"🆔 ID del bot: {id_bot}")
 
-                save_user_daily_production(mobile, form_data, id_bot) 
+                      # ✅ Enviar los datos a la función send_forms_to_save para verificar la correcta obtención de datos
+                      send_forms_to_save(id_bot, mobile, form_data, form_name)
+
+                      # ✅ Mantener la función original sin tocarla
+                      save_user_daily_production(mobile, form_data, id_bot)
+
+                except Exception as e:
+                    print(f"❌ Error al procesar el formulario interactivo: {e}")
 
             
             

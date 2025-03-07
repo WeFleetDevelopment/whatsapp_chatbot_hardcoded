@@ -482,7 +482,8 @@ def download_file_with_retries(url, retries=3, delay=5):
             if attempt < retries - 1:
                 time.sleep(delay)
     return None
- 
+
+
 
 #Function for send  for save it in the back-end
 # def save_image_file(id_bot,phone, file_info, name, type_message):
@@ -781,6 +782,26 @@ def registerAccountUser(id_bot,phone, data):
     
     
 
+#-------------------------------------- Function of Flows/Forms Sendings ---------------------------------#
+
+def send_forms_to_save(id_bot, phone, form_data, form_name):
+    try:
+        # ✅ Imprimir los datos para verificar que se reciben correctamente
+        print("📩 [send_forms_to_save] Recibiendo datos...")
+        print(f"🆔 ID del bot: {id_bot}")
+        print(f"📲 Número de usuario: {phone}")
+        print(f"📝 Nombre del formulario: {form_name}")
+        print(f"🔍 Datos del formulario:")
+        print(json.dumps(form_data, indent=4))  # Formatear JSON para que sea legible
+
+    except Exception as e:
+        print(f"❌ Error en send_forms_to_save: {str(e)}")
+
+
+
+
+
+
 #2- Guardar la produccion diaria del usuario y mostrarla por consola
 def save_user_daily_production(phone, data, id_bot):
     print("Datos obtenidos para guardar producción diaria", phone, data)
@@ -816,7 +837,7 @@ def save_user_daily_production(phone, data, id_bot):
            print('Error al enviar el mensaje de agradecimiento')
     
     
-
+#--------------------------------------- Templates ---------------------------------------------#
 
 # Function for send message of template to user
 def send_template_message_user(id_bot, phone, template_name, template_parameters, template_type):
