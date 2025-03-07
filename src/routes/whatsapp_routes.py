@@ -109,12 +109,12 @@ def webhook_whatsapp():
                     if message_received:  # Verificar si el mensaje recibido no está vacío
                        form_data = get_form_data(message_received)
 
-                       # 🔹 Extraer y convertir el `response_json` a un diccionario
-                       response_json_str = form_data.get("response_json", "{}")
+                       # 🔹 Extraer `response_json` y convertirlo a diccionario
+                       response_json_str = message_received["nfm_reply"]["response_json"]  # Extraer JSON en string
                        form_data_dict = json.loads(response_json_str)  # Convertimos a JSON
                        form_name = form_data_dict.get("form_name", "UNKNOWN_FORM_NAME")  # Extraer nombre del formulario
 
-                       # ✅ Imprimir los datos extraídos en consola
+                       # ✅ Imprimir los datos extraídos en consola para depuración
                        print(f"📝 Nombre del formulario recibido: {form_name}")
                        print(f"📲 Número de usuario: {mobile}")
                        print(f"🆔 ID del bot: {id_bot}")
