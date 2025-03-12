@@ -870,10 +870,10 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
     
     components = []
 
-    # 🔹 1️⃣ Agregar el `header` vacío si la plantilla tiene imagen en Meta Business
-    components.append({'type': 'header', 'parameters': []})
+    # 🔹 1️⃣ WhatsApp espera el "header" cuando la plantilla ya tiene imagen en Meta
+    components.append({'type': 'header'})
 
-    # 🔹 2️⃣ Agregar parámetros del cuerpo de la plantilla solo si existen
+    # 🔹 2️⃣ Agregar parámetros del cuerpo de la plantilla si existen
     if template_parameters:
         components.append({
             'type': 'body',
@@ -894,7 +894,7 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
             ]
         })
 
-    # 🔹 4️⃣ Construcción final del mensaje
+    # 🔹 4️⃣ Construcción final del mensaje con el "header" obligatorio
     data = {
         'messaging_product': 'whatsapp',
         'recipient_type': 'individual', 
@@ -903,7 +903,7 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
         'template': {
             'name': template_name,
             'language': {'code': 'es'},
-            'components': components  # Siempre se debe incluir el `header` vacío
+            'components': components  # El "header" ahora siempre está incluido
         }
     }
 
@@ -918,6 +918,7 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
         print('❌ Error al enviar el mensaje de plantilla') 
         print('📌 Mensaje de error:', response.text)
         return response.status_code
+
 
 
 
