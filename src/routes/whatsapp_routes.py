@@ -326,6 +326,12 @@ def route_send_template_message():
     template_parameters = messageData['template_parameters']  
     template_type = messageData['template_type']  
 
+    # 🔹 1️⃣ Verificar si la plantilla es "marketing_2" para agregar la imagen de prueba
+    url_image = None
+    if template_name == "marketing_2":
+        url_image = "https://firebasestorage.googleapis.com/v0/b/fletzy-page-prod.appspot.com/o/Fletzy-imgs%2FLogo%20Instagram%20Hoktus%20(1).png?alt=media&token=cb9f6c15-93e7-4934-8e7e-3897dd80659b"
+        print(f"📸 Agregando imagen de prueba para la plantilla {template_name}")
+
  
     try:
         
@@ -334,7 +340,8 @@ def route_send_template_message():
             recipient,
             template_name,
             template_parameters,
-            template_type
+            template_type,
+            url_image 
         )
         return jsonify({"success": True, "response": response}), 200
     except Exception as e:
