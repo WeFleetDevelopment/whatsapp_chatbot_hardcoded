@@ -320,13 +320,12 @@ def route_send_template_message():
     print("Datos del usuario userData", userData)
     print("Datos del mensaje messageData", messageData)
 
-    id_config = userData['id_config']  # asegúrate de que no haya una coma al final
-    recipient = userData['phone']      # asegúrate de que no haya una coma al final
-    template_name = messageData['template_name'] # removed comma
-    template_parameters = messageData['template_parameters']  # assuming this is always present
-    template_type = messageData['template_type']  # assuming this is always present
-    
-    
+    id_config = userData['id_config']  
+    recipient = userData['phone']      
+    template_name = messageData['template_name'] 
+    template_parameters = messageData['template_parameters']  
+    template_type = messageData['template_type']  
+
  
     try:
         

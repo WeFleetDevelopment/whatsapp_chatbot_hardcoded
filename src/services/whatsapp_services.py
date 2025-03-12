@@ -851,19 +851,18 @@ def save_user_daily_production(phone, data, id_bot):
 #--------------------------------------- Templates ---------------------------------------------#
 
 # Function for send message of template to user
-def send_template_message_user(id_bot, phone, template_name, template_parameters, template_type):
+def send_template_message_user(id_bot, phone, template_name, template_parameters, template_type, image_url=None):
     print("Datos obtenidos template en service", id_bot, phone, template_name, template_parameters, template_type)
 
-    
-    #1- Obtener el identificador del telefono del chatbot de la empresa
+    # 1- Obtener el identificador del teléfono del chatbot de la empresa
     identification_phone_chatbot = get_phone_chatbot_id(id_bot)
     print("Identificación del teléfono del chatbot:", identification_phone_chatbot)
-    
+
     url = f'https://graph.facebook.com/v21.0/{identification_phone_chatbot}/messages'
     tokenChatbot = get_token_chatbot(id_bot)
 
     print("Token obtenido:", tokenChatbot)
-    
+
     headers = { 
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {tokenChatbot}'
@@ -871,14 +870,24 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
     
     components = []
 
-    # Agregar parámetros de la plantilla solo si no están vacíos
+    # Agregar la imagen al encabezado si la plantilla la requiere
+    if image_url:
+        components.append({
+            'type': 'header',
+            'parameters': [{
+                'type': 'image',
+                'image': {'link': image_url}  # Aquí agregamos la URL de la imagen
+            }]
+        })
+
+    # Agregar parámetros del cuerpo de la plantilla si existen
     if template_parameters:
         components.append({
             'type': 'body',
             'parameters': template_parameters
         })
 
-    # Si el tipo de plantilla es "form", agregar un componente de botón de flujo
+    # Si el tipo de plantilla es "form", agregar botón de flujo
     if template_type == 'form':
         components.append({
             'type': 'button',
@@ -899,10 +908,8 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
         'type': 'template',
         'template': {
             'name': template_name,
-            'language': {
-                'code': 'es'  # Asume que el idioma es español de España, ajusta según sea necesario
-            },
-            'components': components if components else None  # Solo agregar componentes si no están vacíos
+            'language': {'code': 'es'},
+            'components': components  
         }
     }
 
@@ -913,5 +920,6 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
         return response.status_code
     else:
         print('Error al enviar el mensaje de plantilla') 
-        print('Mensaje de error:', response.text)  # Imprime el mensaje de error
-        return response.status_code 
+        print('Mensaje de error:', response.text)
+        return response.status_code
+
