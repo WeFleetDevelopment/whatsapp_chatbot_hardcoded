@@ -867,13 +867,22 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {tokenChatbot}'
     }
+
+    # 🔹 Variable con la imagen de prueba
+    image_url_test = "https://firebasestorage.googleapis.com/v0/b/fletzy-page-prod.appspot.com/o/Fletzy-imgs%2FLogo%20Instagram%20Hoktus%20(1).png?alt=media&token=cb9f6c15-93e7-4934-8e7e-3897dd80659b"
     
     components = []
 
-    # 🔹 1️⃣ Incluir el header con el tipo correcto
-    components.append({'type': 'header', 'parameters': []})
+    # 🔹 1️⃣ Agregar la imagen manualmente para prueba
+    components.append({
+        'type': 'header',
+        'parameters': [{
+            'type': 'image',
+            'image': {'link': image_url_test}
+        }]
+    })
 
-    # 🔹 2️⃣ Agregar parámetros del cuerpo de la plantilla solo si existen
+    # 🔹 2️⃣ Agregar parámetros del cuerpo de la plantilla si existen
     if template_parameters:
         components.append({
             'type': 'body',
@@ -894,7 +903,7 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
             ]
         })
 
-    # 🔹 4️⃣ Construcción final del mensaje con header
+    # 🔹 4️⃣ Construcción final del mensaje con header y la imagen de prueba
     data = {
         'messaging_product': 'whatsapp',
         'recipient_type': 'individual', 
@@ -903,7 +912,7 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
         'template': {
             'name': template_name,
             'language': {'code': 'es'},
-            'components': components  # Siempre incluye el header vacío
+            'components': components  # Ahora el header tiene la imagen correctamente
         }
     }
 
@@ -912,12 +921,13 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
 
     # 🔹 6️⃣ Manejo de la respuesta de WhatsApp
     if response.status_code == 200:
-        print('✅ Mensaje de plantilla enviado correctamente')
+        print('✅ Mensaje de plantilla enviado correctamente con la imagen de prueba')
         return response.status_code
     else:
         print('❌ Error al enviar el mensaje de plantilla') 
         print('📌 Mensaje de error:', response.text)
         return response.status_code
+
 
 
 
