@@ -851,7 +851,7 @@ def save_user_daily_production(phone, data, id_bot):
 #--------------------------------------- Templates ---------------------------------------------#
 
 # Function for send message of template to user
-def send_template_message_user(id_bot, phone, template_name, template_parameters, template_type, image_url=None):
+def send_template_message_user(id_bot, phone, template_name, template_parameters, template_type):
     print("Datos obtenidos template en service", id_bot, phone, template_name, template_parameters, template_type)
 
     # 1- Obtener el identificador del teléfono del chatbot de la empresa
@@ -870,14 +870,17 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
     
     components = []
 
-    # 🔹 1️⃣ Agregar parámetros del cuerpo de la plantilla solo si existen
+    # 🔹 1️⃣ Agregar el `header` vacío si la plantilla tiene imagen en Meta Business
+    components.append({'type': 'header', 'parameters': []})
+
+    # 🔹 2️⃣ Agregar parámetros del cuerpo de la plantilla solo si existen
     if template_parameters:
         components.append({
             'type': 'body',
             'parameters': template_parameters
         })
 
-    # 🔹 2️⃣ Si el tipo de plantilla es "form", agregar botón de flujo
+    # 🔹 3️⃣ Si el tipo de plantilla es "form", agregar botón de flujo
     if template_type == 'form':
         components.append({
             'type': 'button',
@@ -891,16 +894,6 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
             ]
         })
 
-    # 🔹 3️⃣ Evitar agregar un `header` si la plantilla ya tiene una imagen predefinida en Meta
-    if image_url:
-        components.append({
-            'type': 'header',
-            'parameters': [{
-                'type': 'image',
-                'image': {'link': image_url}
-            }]
-        })
-
     # 🔹 4️⃣ Construcción final del mensaje
     data = {
         'messaging_product': 'whatsapp',
@@ -909,18 +902,15 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
         'type': 'template',
         'template': {
             'name': template_name,
-            'language': {'code': 'es'}
+            'language': {'code': 'es'},
+            'components': components  # Siempre se debe incluir el `header` vacío
         }
     }
 
-    # 🔹 5️⃣ Solo agregar `components` si hay algo que enviar
-    if components:
-        data['template']['components'] = components
-
-    # 🔹 6️⃣ Enviar la solicitud
+    # 🔹 5️⃣ Enviar la solicitud
     response = requests.post(url, headers=headers, data=json.dumps(data))
 
-    # 🔹 7️⃣ Manejo de la respuesta de WhatsApp
+    # 🔹 6️⃣ Manejo de la respuesta de WhatsApp
     if response.status_code == 200:
         print('✅ Mensaje de plantilla enviado correctamente')
         return response.status_code
@@ -928,5 +918,6 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
         print('❌ Error al enviar el mensaje de plantilla') 
         print('📌 Mensaje de error:', response.text)
         return response.status_code
+
 
 
