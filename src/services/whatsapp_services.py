@@ -851,21 +851,9 @@ def save_user_daily_production(phone, data, id_bot):
     
 #--------------------------------------- Templates ---------------------------------------------#
 
-def generate_encoded_url(user_id, obusiness_id, slug, departure_time):
-    # 🔹 Convertimos los datos en un JSON
-    params = {
-        "user_id": user_id,
-        "obusiness_id": obusiness_id,
-        "slug": slug,
-        "departure_time": departure_time
-    }
-
-    # 🔹 Codificamos en Base64 (seguro para URL)
-    json_string = json.dumps(params)
-    encoded_params = base64.urlsafe_b64encode(json_string.encode()).decode()
-
-    # 🔹 Generamos el string que se enviará como `{{1}}`
-    return encoded_params  # Solo enviamos este string, no la URL completa
+# 🔹 Función para codificar la URL en Base64 (seguro para WhatsApp)
+def encode_url_for_whatsapp(original_url):
+    return base64.urlsafe_b64encode(original_url.encode()).decode()
 
 
 # Function for send message of template to user
@@ -919,16 +907,11 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
             ]
         })
 
-    # 🔹 4️⃣ Si hay parámetros para botones tipo URL, agregarlos correctamente
+    # 🔹 4️⃣ Si hay parámetros para botones tipo URL, codificarlos y agregarlos
     if template_parameters_buttons:
         for index, button in enumerate(template_parameters_buttons):
             if "url" in button:
-                encoded_url_param = generate_encoded_url(
-                    button["user_id"], 
-                    button["obusiness_id"], 
-                    button["slug"], 
-                    button["departure_time"]
-                )
+                encoded_url = encode_url_for_whatsapp(button["url"])  # 🔥 Aquí se codifica la URL
 
                 components.append({
                     'type': 'button',
@@ -937,7 +920,7 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
                     'parameters': [
                         {
                             'type': 'text',
-                            'text': encoded_url_param  # Se envía solo el string generado
+                            'text': encoded_url  # 🔹 Se envía la URL codificada en Base64
                         }
                     ]
                 })
