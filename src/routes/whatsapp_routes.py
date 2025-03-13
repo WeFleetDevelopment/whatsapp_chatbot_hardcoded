@@ -325,6 +325,7 @@ def route_send_template_message():
     template_name = messageData['template_name'] 
     template_parameters = messageData['template_parameters']  
     template_type = messageData['template_type']  
+    template_parameters_buttons = messageData.get('template_parameters_buttons', [])
 
     # 🔹 1️⃣ Verificar si la plantilla es "marketing_2" para agregar la imagen de prueba
     url_image = None
@@ -341,7 +342,8 @@ def route_send_template_message():
             template_name,
             template_parameters,
             template_type,
-            url_image 
+            template_parameters_buttons,
+            url_image
         )
         return jsonify({"success": True, "response": response}), 200
     except Exception as e:

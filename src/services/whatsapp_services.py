@@ -804,7 +804,7 @@ def send_forms_to_save(id_bot, phone, form_data, form_name):
             
             case _:
                 print(f"⚠ Formulario '{form_name}' no reconocido. No se procesará.")
-
+    
     except Exception as e:
         print(f"❌ Error en send_forms_to_save: {str(e)}")
 
@@ -851,8 +851,8 @@ def save_user_daily_production(phone, data, id_bot):
 #--------------------------------------- Templates ---------------------------------------------#
 
 # Function for send message of template to user
-def send_template_message_user(id_bot, phone, template_name, template_parameters, template_type, url_image=None):
-    print("Datos obtenidos template en service", id_bot, phone, template_name, template_parameters, template_type, url_image)
+def send_template_message_user(id_bot, phone, template_name, template_parameters, template_type, template_parameters_buttons, url_image=None,):
+    print("Datos obtenidos template en service", id_bot, phone, template_name, template_parameters, template_type, url_image,template_parameters_buttons)
 
     # 1- Obtener el identificador del teléfono del chatbot de la empresa
     identification_phone_chatbot = get_phone_chatbot_id(id_bot)
@@ -899,6 +899,15 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
                     'text': 'Completar producción'
                 }
             ]
+        })
+
+    # 🔹 4️⃣ Si hay parámetros para botones tipo URL, agregarlos
+    if template_parameters_buttons:
+        components.append({
+            'type': 'button',
+            'sub_type': 'URL',
+            'index': 0,
+            'parameters': template_parameters_buttons
         })
 
     # 🔹 4️⃣ Construcción final del mensaje
