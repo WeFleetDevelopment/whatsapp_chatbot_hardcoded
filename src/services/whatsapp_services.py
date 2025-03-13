@@ -4,6 +4,7 @@ import json
 import time
 import random
 import string
+import base64
 # Time Chile - Santiago
 from datetime import datetime
 import pytz
@@ -850,6 +851,23 @@ def save_user_daily_production(phone, data, id_bot):
     
 #--------------------------------------- Templates ---------------------------------------------#
 
+def generate_encoded_url(user_id, obusiness_id, slug, departure_time):
+    # 🔹 Convertimos los datos en un JSON
+    params = {
+        "user_id": user_id,
+        "obusiness_id": obusiness_id,
+        "slug": slug,
+        "departure_time": departure_time
+    }
+
+    # 🔹 Codificamos en Base64 (seguro para URL)
+    json_string = json.dumps(params)
+    encoded_params = base64.urlsafe_b64encode(json_string.encode()).decode()
+
+    # 🔹 Generamos el string que se enviará como `{{1}}`
+    return encoded_params  # Solo enviamos este string, no la URL completa
+
+
 # Function for send message of template to user
 def send_template_message_user(id_bot, phone, template_name, template_parameters, template_type, template_parameters_buttons, url_image=None,):
     print("Datos obtenidos template en service", id_bot, phone, template_name, template_parameters, template_type, url_image,template_parameters_buttons)
@@ -901,27 +919,28 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
             ]
         })
 
-    # 🔹 4️⃣ Si hay parámetros para botones tipo URL, agregarlos
+    # 🔹 4️⃣ Si hay parámetros para botones tipo URL, agregarlos correctamente
     if template_parameters_buttons:
         for index, button in enumerate(template_parameters_buttons):
-            # 🔹 Extraer solo la parte dinámica que debe ir en la variable de Meta
-            url_parameters = button["url"].split("?")[-1]  # Toma solo la parte después del "?"
-            
-            components.append({
-                'type': 'button',
-                'sub_type': 'URL',
-                'index': index,  
-                'parameters': [
-                    {
-                        'type': 'text',
-                        'text': button['text']
-                    },
-                    {
-                        'type': 'text',
-                        'text': url_parameters  # Solo enviamos los parámetros dinámicos
-                    }
-                ]
-            })
+            if "url" in button:
+                encoded_url_param = generate_encoded_url(
+                    button["user_id"], 
+                    button["obusiness_id"], 
+                    button["slug"], 
+                    button["departure_time"]
+                )
+
+                components.append({
+                    'type': 'button',
+                    'sub_type': 'URL',
+                    'index': index,  
+                    'parameters': [
+                        {
+                            'type': 'text',
+                            'text': encoded_url_param  # Se envía solo el string generado
+                        }
+                    ]
+                })
 
     # 🔹 4️⃣ Construcción final del mensaje
     data = {
