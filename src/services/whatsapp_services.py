@@ -903,11 +903,17 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
 
     # 🔹 4️⃣ Si hay parámetros para botones tipo URL, agregarlos
     if template_parameters_buttons:
-        components.append({
-            'type': 'button',
-            'sub_type': 'URL',
-            'index': 0,
-            'parameters': template_parameters_buttons
+        for button in template_parameters_buttons:
+             components.append({
+                 'type': 'button',
+                 'sub_type': 'URL',
+                 'index': 0,
+                 'parameters': [
+                     {
+                         'type': 'text',
+                         'text': button['text']  # Aquí solo pasamos el texto del botón
+                     }
+                 ]
         })
 
     # 🔹 4️⃣ Construcción final del mensaje
