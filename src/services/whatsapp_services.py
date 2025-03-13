@@ -903,18 +903,25 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
 
     # 🔹 4️⃣ Si hay parámetros para botones tipo URL, agregarlos
     if template_parameters_buttons:
-        for button in template_parameters_buttons:
-             components.append({
-                 'type': 'button',
-                 'sub_type': 'URL',
-                 'index': 0,
-                 'parameters': [
-                     {
-                         'type': 'text',
-                         'text': button['text']  # Aquí solo pasamos el texto del botón
-                     }
-                 ]
-        })
+        for index, button in enumerate(template_parameters_buttons):
+            # 🔹 Extraer solo la parte dinámica que debe ir en la variable de Meta
+            url_parameters = button["url"].split("?")[-1]  # Toma solo la parte después del "?"
+            
+            components.append({
+                'type': 'button',
+                'sub_type': 'URL',
+                'index': index,  
+                'parameters': [
+                    {
+                        'type': 'text',
+                        'text': button['text']
+                    },
+                    {
+                        'type': 'text',
+                        'text': url_parameters  # Solo enviamos los parámetros dinámicos
+                    }
+                ]
+            })
 
     # 🔹 4️⃣ Construcción final del mensaje
     data = {
