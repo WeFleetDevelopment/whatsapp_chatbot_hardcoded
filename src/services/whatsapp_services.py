@@ -911,8 +911,6 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
     if template_parameters_buttons:
         for index, button in enumerate(template_parameters_buttons):
             if "url" in button:
-                encoded_url = encode_url_for_whatsapp(button["url"])  # 🔥 Aquí se codifica la URL
-
                 components.append({
                     'type': 'button',
                     'sub_type': 'URL',
@@ -920,7 +918,7 @@ def send_template_message_user(id_bot, phone, template_name, template_parameters
                     'parameters': [
                         {
                             'type': 'text',
-                            'text': encoded_url  # 🔹 Se envía la URL codificada en Base64
+                            'text': button["url"]  
                         }
                     ]
                 })
