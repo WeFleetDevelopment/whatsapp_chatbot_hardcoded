@@ -12,7 +12,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     # CORS(app, resources={r"/*": {"origins": ["http://localhost:9302","https://fletzy-back-admin-test-production.up.railway.app"]}}, supports_credentials=True)
-    CORS(app, resources={r"/*": {"origins": ["https://hoktus-api-messages-test-production.up.railway.app","http://localhost:9000"]}}, supports_credentials=True)
+    CORS(app, resources={r"/*": {"origins": ["https://hoktus-api-messages-prod-production.up.railway.app","https://api-hoktus-bss.com","http://localhost:9000", ]}}, supports_credentials=True)
     
     # Definir la ruta de la carpeta temporal
     TEMP_DIR = os.path.join(os.path.dirname(__file__), 'temp')
