@@ -312,6 +312,13 @@ def get_phone_chatbot_id(id_bot):
         result = session.execute(text("SELECT identification_phone FROM business_whatsapp_config WHERE id_config = :id"), {'id': id_bot}).fetchone()
         return result[0] if result else False
 
+# Function for validate id_bot and id number whatsapp id
+# def get_phone_id_from_config(id_bot):
+#     if not id_bot:
+#         return False
+#     with session_scope() as session:
+#         result = session.execute(text("SELECT identification_phone FROM business_whatsapp_config WHERE id_config = :id"), {'id': id_bot}).fetchone()
+#         return result[0] if result else False
 
 
   
