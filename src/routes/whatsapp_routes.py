@@ -16,7 +16,7 @@ from io import BytesIO
 from src.services.whatsapp_services import ( 
     save_user_message,handle_file,get_form_data,save_user_daily_production,validate_business_chatbot,get_name,
     get_message,get_mobile,get_message_type,changed_field,is_message,get_delivery,get_interactive_response,send_message_user,send_document_user,
-    send_image_user,send_audio_user,send_template_message_user,get_interactive_response_flow,send_forms_to_save
+    send_image_user,send_audio_user,send_template_message_user,get_interactive_response_flow,send_forms_to_save,get_phone_chatbot_id
 )
 #Messages of the bot for send
 # from src.utils.messages import msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10, msgcomunaerror, msg11, msg12, msg13, msg14, msg15, msg16, msg17, msg18, msgpresencial, msgpresencialconfirmacion_no, msgpresencialconfirmacion_si, msg19, msg20, msg21, msg22, msg23, msg24, msg25, msg26, msg27, msg28, msg29, certificadopeoneta, msg30, msg31, msg32, msg33, msg34, msg35, msg36, msg37, msg38, msg39, msg40, msg41, msg42, msg43, msg44, msg45, documento_corregido,
@@ -77,6 +77,16 @@ def webhook_whatsapp():
     
     # Handle Webhook Subscriptions
     data = request.get_json()
+    # Extraer el ID del número receptor (del chatbot)
+    phone_number_id = data['entry'][0]['changes'][0]['value']['metadata']['phone_number_id']
+    print(f"🔍 ID del número receptor (phone_number_id): {phone_number_id}")
+   
+    # ✅ Validar que el número del mensaje corresponde con el id_config usado
+    phone_number_expected = get_phone_chatbot_id(id_bot)
+    if phone_number_id != phone_number_expected:
+       print(f"❌ ID del número recibido ({phone_number_id}) no corresponde con el ID esperado para este bot ({phone_number_expected}). Ignorando mensaje.")
+       return "Ignored valid", 200
+
     if changed_field(data) == "messages":
         if is_message(data):
             mobile = get_mobile(data)
