@@ -43,8 +43,8 @@ def webhook_whatsapp():
     # print("JSON request data:", json.dumps(request.get_json(), indent=4))
 
     # 📌 IMPRIMIR TODO EL CUERPO DE LA SOLICITUD PARA DEPURACIÓN
-    print("🔍 RAW JSON RECIBIDO EN WEBHOOK:")
-    print(json.dumps(request.get_json(), indent=4))  # Formatea el JSON para que sea legible
+    # print("🔍 RAW JSON RECIBIDO EN WEBHOOK:")
+    # print(json.dumps(request.get_json(), indent=4))  # Formatea el JSON para que sea legible
 
     
     #1- Verificar el id de la configuracion de la empresa, que exista en la url
