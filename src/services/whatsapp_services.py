@@ -568,17 +568,14 @@ def download_file_with_retries(url, retries=3, delay=5):
 
 # Función para convertir imágenes a JPG
 # Función para convertir imágenes a JPG correctamente
-def convert_image_to_jpg(original_path, original_filename):
+def convert_image_to_jpg(original_path):
     try:
-        with Image.open(original_path) as img:
-            # Extraemos solo el nombre sin extensión y lo usamos como base
-            base_name = os.path.splitext(original_filename)[0]
-            new_filename = f"{base_name}.jpg"
-            new_path = os.path.join(TEMP_DIR, new_filename)
+        base = os.path.splitext(os.path.basename(original_path))[0]
+        new_path = os.path.join(TEMP_DIR, f"{base}.jpg")
 
+        with Image.open(original_path) as img:
             img.convert('RGB').save(new_path, 'JPEG')
 
-        # Eliminamos el original solo si existe
         if os.path.exists(original_path):
             os.remove(original_path)
 
@@ -645,7 +642,6 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
         os.makedirs(TEMP_DIR)
         print(f"📁 Carpeta temporal creada: {TEMP_DIR}")
 
-    # Obtener info del archivo
     file_info = get_image(data) if is_image else (
         get_document(data) if message_type == "document" else get_audio(data)
     )
@@ -688,9 +684,12 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
                         for chunk in file_response.iter_content(chunk_size=8192):
                             temp_file.write(chunk)
 
-                    # 🔄 Convertimos a JPG si es imagen con mime diferente
+                    # 🔄 Convertimos y actualizamos la ruta real del archivo
                     if is_image and mime_type.split('/')[1] != 'jpeg':
-                        temp_path = convert_image_to_jpg(temp_path, original_filename)
+                        temp_path = convert_image_to_jpg(temp_path)
+
+                    # ⚠️ Este es el nombre real final
+                    final_filename = os.path.basename(temp_path)
 
                     send_file_to_backend(
                         id_bot,
@@ -698,7 +697,7 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
                         mobile,
                         name,
                         message_type,
-                        os.path.basename(temp_path),
+                        final_filename,
                         "image/jpeg" if is_image else mime_type
                     )
                 else:
