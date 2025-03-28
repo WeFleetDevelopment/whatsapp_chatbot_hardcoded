@@ -25,7 +25,7 @@ from sqlalchemy.exc import OperationalError
  
 # #Config of the api of whatsapp    
 # from src.config.config_Whatsapp impor t messenger,logging
- 
+
 # Carpeta Temp
 TEMP_DIR = os.path.join(os.path.dirname(__file__), '..', 'temp')
 
