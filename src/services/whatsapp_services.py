@@ -261,6 +261,8 @@ def send_image(token, url, image, recipient_id, recipient_type="individual", cap
     response = requests.post(url, headers=headers, json=data)
     return response.json()
 
+
+
 def send_audio(token, url, audio, recipient_id, link=True):
     """Sends an audio message to a WhatsApp user."""
     if link:
@@ -612,25 +614,28 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
     
     print("Datos obtenidos para manejar archivo:", id_bot, data, mobile, name, message_type, is_image)
      
-    #Obtener información del archivo  
+    # Obtener información del archivo  
     file_info = get_image(data) if is_image else (
         get_document(data) if message_type == "document" else get_audio(data)
     )
     file_id = file_info['id']  # ID del archivo 
     mime_type = file_info['mime_type'] 
 
-    # Generar nombres personalizados para los archivos
-    if message_type == "audio":
-        original_filename = generate_audio_filename()
-    elif is_image:
+    # Validación extra: si es documento pero tiene mime de imagen, lo tratamos como imagen
+    image_mime_types = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
+    if message_type == "document" and mime_type in image_mime_types:
+        is_image = True
+        message_type = "image"
+        print("📸 Documento con mimetype de imagen detectado. Tratando como imagen.")
         original_filename = generate_filename() + ".jpg"
     else:
-        original_filename = file_info.get('filename', "archivo_desconocido.pdf")
-    
-    # print('file_info', file_info)
-    # print('file_id', file_id)
-    # print('mime_type', mime_type)
-    # print('original_filename', original_filename)
+        # Generar nombres personalizados para los archivos
+        if message_type == "audio":
+            original_filename = generate_audio_filename()
+        elif is_image:
+            original_filename = generate_filename() + ".jpg"
+        else:
+            original_filename = file_info.get('filename', "archivo_desconocido.pdf")
 
     # Paso 1: Hacer la primera petición para obtener la URL del archivo
     token = get_token_chatbot(id_bot)
@@ -656,10 +661,6 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
                         for chunk in file_response.iter_content(chunk_size=8192):
                             temp_file.write(chunk)
                   
-                    # # Verificar tamaño del archivo
-                    # print(f"Archivo descargado correctamente: {temp_path}")
-                    # print(f"Tamaño del archivo descargado: {os.path.getsize(temp_path)} bytes")
-
                     # Convertir a JPG si es una imagen y no está ya en formato JPEG
                     if is_image and mime_type.split('/')[1] != 'jpeg':
                         temp_path = convert_image_to_jpg(temp_path, original_filename)
@@ -670,7 +671,7 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
                         temp_path, 
                         mobile, 
                         name,  
-                        message_type, 
+                        message_type,  # ya corregido si era documento con mime de imagen
                         original_filename, 
                         "image/jpeg" if is_image else mime_type
                     )
@@ -683,7 +684,6 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
             print(response.json())
     except requests.exceptions.RequestException as e:
         print(f"Error durante las peticiones al API de WhatsApp: {e}")
-
       
 
 # Función para enviar archivos al backend
