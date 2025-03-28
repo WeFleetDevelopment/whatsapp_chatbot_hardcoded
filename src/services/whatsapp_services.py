@@ -428,6 +428,21 @@ def generate_audio_filename():
     unique_id = generate_random_id_upper(10)
     return f"WhatsApp_Hoktus_audio_{formatted_time}_{unique_id}" 
  
+# Función para generar nombres personalizados para archivos PDF
+def generate_pdf_filename(original_name):
+    tz = pytz.timezone('America/Santiago')
+    current_time = datetime.now(tz)
+    formatted_time = current_time.strftime("%Y-%m-%d_%H:%M:%S")
+    unique_id = generate_random_id_upper(10)
+
+    # Reemplazar espacios por guiones bajos
+    sanitized_name = original_name.replace(" ", "_")
+
+    # Eliminar la extensión si existe, para evitar duplicar ".pdf"
+    if sanitized_name.lower().endswith('.pdf'):
+        sanitized_name = sanitized_name[:-4]
+
+    return f"{sanitized_name}_{formatted_time}_{unique_id}.pdf"
 
 
 # Function for Obtein message of user in whatsapp and send to the back-end to save it
@@ -611,15 +626,19 @@ def convert_image_to_jpg(temp_path, original_filename):
 
 # Función para descargar y manejar documentos e imágenes
 def handle_file(id_bot, data, mobile, name, message_type, is_image):
-    
     print("Datos obtenidos para manejar archivo:", id_bot, data, mobile, name, message_type, is_image)
-     
-    # Obtener información del archivo  
+
+    # Asegurarse que la carpeta TEMP_DIR exista
+    if not os.path.exists(TEMP_DIR):
+        os.makedirs(TEMP_DIR)
+        print(f"📁 Carpeta temporal creada: {TEMP_DIR}")
+
+    # Obtener información del archivo
     file_info = get_image(data) if is_image else (
         get_document(data) if message_type == "document" else get_audio(data)
     )
-    file_id = file_info['id']  # ID del archivo 
-    mime_type = file_info['mime_type'] 
+    file_id = file_info['id']  # ID del archivo
+    mime_type = file_info['mime_type']
 
     # Validación extra: si es documento pero tiene mime de imagen, lo tratamos como imagen
     image_mime_types = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
@@ -635,16 +654,18 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
         elif is_image:
             original_filename = generate_filename() + ".jpg"
         else:
-            original_filename = file_info.get('filename', "archivo_desconocido.pdf")
+            # ⚠️ Aquí usamos la nueva función para PDF
+            original_name = file_info.get('filename', "archivo_desconocido.pdf")
+            original_filename = generate_pdf_filename(original_name)
 
     # Paso 1: Hacer la primera petición para obtener la URL del archivo
     token = get_token_chatbot(id_bot)
-    print("Token obtenido handle_file:", token) 
+    print("Token obtenido handle_file:", token)
     url_query = f"https://graph.facebook.com/v21.0/{file_id}"
     headers = {
         'Authorization': f'Bearer {token}'
     }
-    try: 
+    try:
         response = requests.get(url_query, headers=headers)
         if response.status_code == 200:
             file_data = response.json()
@@ -653,26 +674,26 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
             file_url = file_data.get('url')  # Obtener la URL del archivo
 
             # Paso 2: Descargar el archivo usando la URL obtenida
-            if file_url: 
+            if file_url:
                 file_response = requests.get(file_url, headers=headers, stream=True)
-                if file_response.status_code == 200: 
+                if file_response.status_code == 200:
                     temp_path = os.path.join(TEMP_DIR, original_filename)
                     with open(temp_path, 'wb') as temp_file:
                         for chunk in file_response.iter_content(chunk_size=8192):
                             temp_file.write(chunk)
-                  
+
                     # Convertir a JPG si es una imagen y no está ya en formato JPEG
                     if is_image and mime_type.split('/')[1] != 'jpeg':
                         temp_path = convert_image_to_jpg(temp_path, original_filename)
-  
-                    # Enviar el archivo al backend 
+
+                    # Enviar el archivo al backend
                     send_file_to_backend(
                         id_bot,
-                        temp_path, 
-                        mobile, 
-                        name,  
-                        message_type,  # ya corregido si era documento con mime de imagen
-                        original_filename, 
+                        temp_path,
+                        mobile,
+                        name,
+                        message_type,
+                        original_filename,
                         "image/jpeg" if is_image else mime_type
                     )
                 else:
@@ -683,8 +704,7 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
             print(f"Error al obtener datos del archivo. Código de estado: {response.status_code}")
             print(response.json())
     except requests.exceptions.RequestException as e:
-        print(f"Error durante las peticiones al API de WhatsApp: {e}")
-      
+        print(f"Error durante las peticiones al API de WhatsApp: {e}") 
 
 # Función para enviar archivos al backend
 def send_file_to_backend(id_bot, temp_path, phone, name, type_message, original_filename, mime_type):
