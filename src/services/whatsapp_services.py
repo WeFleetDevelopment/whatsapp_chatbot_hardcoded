@@ -570,8 +570,9 @@ def download_file_with_retries(url, retries=3, delay=5):
 # Función para convertir imágenes a JPG correctamente
 def convert_image_to_jpg(original_path):
     try:
-        base = os.path.splitext(os.path.basename(original_path))[0]
-        new_path = os.path.join(TEMP_DIR, f"{base}.jpg")
+        base_name = os.path.splitext(os.path.basename(original_path))[0]
+        new_name = f"{base_name}_converted.jpg"
+        new_path = os.path.join(TEMP_DIR, new_name)
 
         with Image.open(original_path) as img:
             img.convert('RGB').save(new_path, 'JPEG')
@@ -653,15 +654,17 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
         is_image = True
         message_type = "image"
         print("📸 Documento con mimetype de imagen detectado. Tratando como imagen.")
-        original_filename = generate_filename() + ".jpg"
+        generated_name = generate_filename() + ".jpg"
     else:
         if message_type == "audio":
-            original_filename = generate_audio_filename()
+            generated_name = generate_audio_filename()
         elif is_image:
-            original_filename = generate_filename() + ".jpg"
+            generated_name = generate_filename() + ".jpg"
         else:
             original_name = file_info.get('filename', "archivo_desconocido.pdf")
-            original_filename = generate_pdf_filename(original_name)
+            generated_name = generate_pdf_filename(original_name)
+
+    temp_path = os.path.join(TEMP_DIR, generated_name)
 
     token = get_token_chatbot(id_bot)
     print("Token obtenido handle_file:", token)
@@ -679,16 +682,14 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
             if file_url:
                 file_response = requests.get(file_url, headers=headers, stream=True)
                 if file_response.status_code == 200:
-                    temp_path = os.path.join(TEMP_DIR, original_filename)
                     with open(temp_path, 'wb') as temp_file:
                         for chunk in file_response.iter_content(chunk_size=8192):
                             temp_file.write(chunk)
 
-                    # 🔄 Convertimos y actualizamos la ruta real del archivo
+                    # 🔄 Convertimos y obtenemos la nueva ruta
                     if is_image and mime_type.split('/')[1] != 'jpeg':
                         temp_path = convert_image_to_jpg(temp_path)
 
-                    # ⚠️ Este es el nombre real final
                     final_filename = os.path.basename(temp_path)
 
                     send_file_to_backend(
