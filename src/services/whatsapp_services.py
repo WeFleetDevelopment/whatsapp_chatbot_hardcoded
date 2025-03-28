@@ -567,20 +567,23 @@ def download_file_with_retries(url, retries=3, delay=5):
 
 
 # Función para convertir imágenes a JPG
+# Función para convertir imágenes a JPG correctamente
 def convert_image_to_jpg(original_path, original_filename):
     try:
         with Image.open(original_path) as img:
-            # Creamos un nuevo nombre con la misma base pero extensión .jpg
+            # Extraemos solo el nombre sin extensión y lo usamos como base
             base_name = os.path.splitext(original_filename)[0]
             new_filename = f"{base_name}.jpg"
             new_path = os.path.join(TEMP_DIR, new_filename)
 
             img.convert('RGB').save(new_path, 'JPEG')
 
-        os.remove(original_path)  # Eliminamos el archivo original
+        # Eliminamos el original solo si existe
+        if os.path.exists(original_path):
+            os.remove(original_path)
 
         print(f"Imagen convertida a JPG. Tamaño del archivo convertido: {os.path.getsize(new_path)} bytes")
-        return new_path  # Devolvemos la nueva ruta
+        return new_path
     except Exception as e:
         print(f"❌ Error al convertir imagen a JPG: {e}")
         raise
@@ -638,19 +641,17 @@ def convert_image_to_jpg(original_path, original_filename):
 def handle_file(id_bot, data, mobile, name, message_type, is_image):
     print("Datos obtenidos para manejar archivo:", id_bot, data, mobile, name, message_type, is_image)
 
-    # Asegurarse de que la carpeta TEMP_DIR exista
     if not os.path.exists(TEMP_DIR):
         os.makedirs(TEMP_DIR)
         print(f"📁 Carpeta temporal creada: {TEMP_DIR}")
 
-    # Obtener información del archivo
+    # Obtener info del archivo
     file_info = get_image(data) if is_image else (
         get_document(data) if message_type == "document" else get_audio(data)
     )
     file_id = file_info['id']
     mime_type = file_info['mime_type']
 
-    # Validación: si es documento pero con mime de imagen, tratar como imagen
     image_mime_types = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
     if message_type == "document" and mime_type in image_mime_types:
         is_image = True
@@ -658,7 +659,6 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
         print("📸 Documento con mimetype de imagen detectado. Tratando como imagen.")
         original_filename = generate_filename() + ".jpg"
     else:
-        # Generar nombres personalizados según tipo
         if message_type == "audio":
             original_filename = generate_audio_filename()
         elif is_image:
@@ -667,7 +667,6 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
             original_name = file_info.get('filename', "archivo_desconocido.pdf")
             original_filename = generate_pdf_filename(original_name)
 
-    # Paso 1: Obtener la URL del archivo desde la API de WhatsApp
     token = get_token_chatbot(id_bot)
     print("Token obtenido handle_file:", token)
     url_query = f"https://graph.facebook.com/v21.0/{file_id}"
@@ -689,11 +688,10 @@ def handle_file(id_bot, data, mobile, name, message_type, is_image):
                         for chunk in file_response.iter_content(chunk_size=8192):
                             temp_file.write(chunk)
 
-                    # Si es imagen válida, convertir a JPG si no es JPEG
+                    # 🔄 Convertimos a JPG si es imagen con mime diferente
                     if is_image and mime_type.split('/')[1] != 'jpeg':
                         temp_path = convert_image_to_jpg(temp_path, original_filename)
 
-                    # Enviar archivo al backend
                     send_file_to_backend(
                         id_bot,
                         temp_path,
