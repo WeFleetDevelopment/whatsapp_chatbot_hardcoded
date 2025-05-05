@@ -23,7 +23,7 @@ from src.database.mysql.mysql_config import db
 from tenacity import retry, wait_fixed, stop_after_attempt
 from sqlalchemy.exc import OperationalError
  
-# #Config of the api of whatsapp    
+# #Condfig of the api of whatsapp    
 # from src.config.config_Whatsapp impor t messenger,logging
 
 # Carpeta Temp
