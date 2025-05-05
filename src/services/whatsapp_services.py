@@ -31,13 +31,13 @@ TEMP_DIR = os.path.join(os.path.dirname(__file__), '..', 'temp')
 
 # Define la URL base como una variable global
 #Original
-BASE_URL = 'https://hoktus-api-messages-prod-production.up.railway.app'
-BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-prod-production.up.railway.app'
+# BASE_URL = 'https://hoktus-api-messages-prod-production.up.railway.app'
+# BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-prod-production.up.railway.app'
 
 
 #Prueba 1
-# BASE_URL = 'https://hoktus-api-messages-test-production.up.railway.app'
-# BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-test-production.up.railway.app'
+BASE_URL = 'https://hoktus-api-messages-test-production.up.railway.app'
+BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-test-production.up.railway.app'
 
 
 @contextmanager
@@ -171,9 +171,12 @@ def get_interactive_response_flow(data):
     """Extrae la respuesta interactiva o NFM reply del mensaje."""
     message_data = preprocess(data)
     try:
-        if "nfm_reply" in message_data["messages"][0]:  # Verificar si es un NFM Reply
+        # Verificar si es un NFM Reply
+        if "nfm_reply" in message_data["messages"][0]:  
             return message_data["messages"][0]["nfm_reply"]
-        elif "interactive" in message_data["messages"][0]:  # Si es un mensaje interactivo
+        
+         # Si es un mensaje interactivo
+        elif "interactive" in message_data["messages"][0]:
             return message_data["messages"][0]["interactive"]
         else:
             return None
@@ -201,6 +204,7 @@ def preprocess(data):
 
 
 #-------------------------------------- Funciones para enviar mensajes a WhatsApp ---------------------------------
+
 def send_document(token, url, document, recipient_id, caption=None, link=True, filename=None):
     """Sends a document message to a WhatsApp user."""
 

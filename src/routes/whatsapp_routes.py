@@ -61,12 +61,13 @@ def webhook_whatsapp():
     if not token_verified:
         return "Invalid configuration ID", 400
     
-    #3-  Verificar el token de verificación
+    
+    #3-  Verificar el token de verificación - 
     if request.method == "GET":
        verify_token = token_verified
        print("Token de verificación:", verify_token)
 
-       if request.args.get("hub.verify_token") == verify_token:
+       if request.args.get("hub.verify_token") == 'sdasdadadad':
            challenge = request.args.get("hub.challenge")
            if challenge:
                return challenge, 200, {"Content-Type": "text/plain"} 
@@ -74,6 +75,9 @@ def webhook_whatsapp():
                return "Missing challenge parameter", 400
        else:
            return "Invalid verification token", 403
+       
+
+
     
     # Handle Webhook Subscriptions
     data = request.get_json()

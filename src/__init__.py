@@ -7,12 +7,13 @@ from src.routes.whatsapp_routes import whatsapp_routes
 
 #Data Base of MySql
 from src.database.mysql.mysql_config import db, Config
- 
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    # CORS(app, resources={r"/*": {"origins": ["http://localhost:9302","https://fletzy-back-admin-test-production.up.railway.app"]}}, supports_credentials=True)
-    CORS(app, resources={r"/*": {"origins": ["https://hoktus-api-messages-prod-production.up.railway.app","https://api-hoktus-bss.com","http://localhost:9000", ]}}, supports_credentials=True)
+    CORS(app, resources={r"/*": {"origins": ["http://localhost:9302","https://hoktus-api-messages-test-production.up.railway.app"]}}, supports_credentials=True)
+    # CORS(app, resources={r"/*": {"origins": ["https://hoktus-api-messages-prod-production.up.railway.app","https://api-hoktus-bss.com","http://localhost:9000", ]}}, supports_credentials=True)
     
     # Definir la ruta de la carpeta temporal
     TEMP_DIR = os.path.join(os.path.dirname(__file__), 'temp')
