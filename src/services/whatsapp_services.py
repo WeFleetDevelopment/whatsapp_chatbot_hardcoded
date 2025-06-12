@@ -16,7 +16,7 @@ from io import BytesIO
 #Database of MySql
 from sqlalchemy import text
 from flask import current_app
-from contextlib import contextmanager
+
 from src.database.mysql.mysql_config import db 
 
 #Tenacy
@@ -40,6 +40,7 @@ BASE_URL = 'https://hoktus-api-messages-test-production.up.railway.app'
 BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-test-production.up.railway.app'
 
 
+from contextlib import contextmanager
 @contextmanager
 def session_scope():
     """Proporciona un scope transaccional alrededor de una serie de operaciones."""
