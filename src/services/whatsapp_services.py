@@ -36,7 +36,7 @@ TEMP_DIR = os.path.join(os.path.dirname(__file__), '..', 'temp')
 
 
 #Prueba 1
-BASE_URL = 'https://hoktus-api-messages-test-production.up.railway.app'
+BASE_URL = os.getenv('SERVER_API_MESSAGES')
 BASE_URL_CHATBOT= 'https://business-whatsapp-chatbot-test-production.up.railway.app'
 
 
