@@ -461,7 +461,7 @@ def save_user_message(id_bot, phone, message, name, type_message):
         print("No se encontró la configuración de la empresa con el ID proporcionado.",id_bot)
         return False 
          
-    
+    print("Server mensajeria", BASE_URL)
     #1- Create the url to Save the message
     url = f'{BASE_URL}/api/messages/business/chat/user/save-message'
     data = { 
