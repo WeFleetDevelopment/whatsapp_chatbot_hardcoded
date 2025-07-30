@@ -412,7 +412,7 @@ def send_audio_user(id_bot, file_url, recipient):
 
 
 # Funcion para enviar lista de archivos al usuario
-def send_lists_files_user(id_config, phone, message, lists):
+def send_lists_files_user(id_config, phone,title, message, lists):
     """
     Envía una lista de archivos al usuario a través de WhatsApp API.
 
@@ -437,7 +437,7 @@ def send_lists_files_user(id_config, phone, message, lists):
     for file in lists:
         rows.append({
             "id": file["id_file"],
-            "title": file["name_file"][:24],  # WhatsApp permite máx. 24 caracteres
+            "title": file["name_file"][:24],  # Limitar el título a 24 caracteres
             "description": file["mimetype"]
         })
 
@@ -449,7 +449,7 @@ def send_lists_files_user(id_config, phone, message, lists):
             "type": "list",
             "header": {
                 "type": "text",
-                "text": "Documentos disponibles"
+                "text": title[:24]  # Limitar el título a 24 caracteres
             },
             "body": {
                 "text": message

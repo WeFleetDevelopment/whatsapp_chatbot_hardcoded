@@ -334,11 +334,13 @@ def send_list_message():
 
     id_config = data["id_config"]
     phone = data["phone"]
+    title = data["title"]
     message = data["message"]
     lists = data["lists"]
 
+
     try:
-        success = send_lists_files_user(id_config, phone, message, lists)
+        success = send_lists_files_user(id_config, phone,title, message, lists)
         if success:
             return jsonify({"status": "ok"}), 200
         else:
