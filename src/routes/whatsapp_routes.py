@@ -16,7 +16,7 @@ from io import BytesIO
 from src.services.whatsapp_services import ( 
     save_user_message,handle_file,get_form_data,save_user_daily_production,validate_business_chatbot,get_name,
     get_message,get_mobile,get_message_type,changed_field,is_message,get_delivery,get_interactive_response,send_message_user,send_document_user,
-    send_image_user,send_audio_user,send_template_message_user,get_interactive_response_flow,send_forms_to_save,get_phone_chatbot_id
+    send_image_user,send_audio_user,send_template_message_user,get_interactive_response_flow,send_lists_files_user,send_forms_to_save,get_phone_chatbot_id
 )
 #Messages of the bot for send
 # from src.utils.messages import msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10, msgcomunaerror, msg11, msg12, msg13, msg14, msg15, msg16, msg17, msg18, msgpresencial, msgpresencialconfirmacion_no, msgpresencialconfirmacion_si, msg19, msg20, msg21, msg22, msg23, msg24, msg25, msg26, msg27, msg28, msg29, certificadopeoneta, msg30, msg31, msg32, msg33, msg34, msg35, msg36, msg37, msg38, msg39, msg40, msg41, msg42, msg43, msg44, msg45, documento_corregido,
@@ -314,6 +314,31 @@ def send_file(type):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+#Ruta para enviar un mensaje interactivo de listas con Archivos PDF O imagenes
+@whatsapp_routes.route('/whatsapp/send_list_message', methods=["POST"])
+def send_list_message():
+    data = request.json
+    print("📥 Datos del mensaje interactivo recibido:", json.dumps(data, indent=4))
+
+    required_keys = ['id_config', 'phone', 'message', 'lists']
+    if not all(k in data for k in required_keys):
+        return jsonify({"error": "Faltan campos requeridos: 'id_config', 'phone', 'message', 'lists'"}), 400
+
+    id_config = data["id_config"]
+    phone = data["phone"]
+    message = data["message"]
+    lists = data["lists"]
+
+    try:
+        success = send_lists_files_user(id_config, phone, message, lists)
+        if success:
+            return jsonify({"status": "ok"}), 200
+        else:
+            return jsonify({"error": "No se pudo enviar el mensaje"}), 500
+    except Exception as e:
+        print("❌ Error en send_list_message:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 #------------------------- Rutas para la comunicacion del servidor que guardara y enviara los mensajes --------------- #
 

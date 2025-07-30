@@ -410,6 +410,82 @@ def send_audio_user(id_bot, file_url, recipient):
     else:
         print(f"Error al enviar audio a {recipient}: {response.get('error', 'Error desconocido')}")
 
+
+# Funcion para enviar lista de archivos al usuario
+def send_lists_files_user(id_config, phone, message, lists):
+    """
+    Envía una lista de archivos al usuario a través de WhatsApp API.
+
+    Parámetros:
+    - id_config: ID de configuración del bot.
+    - phone: Número del destinatario (formato internacional).
+    - message: Cuerpo del mensaje (body).
+    - lists: Lista de archivos [{id_file, name_file, mimetype, ...}]
+    """
+    print("📤 Enviando archivos como lista interactiva a:", phone)
+
+    # Validar configuración y obtener credenciales
+    if not validate_business_chatbot(id_config):
+        print("❌ Configuración de bot no válida:", id_config)
+        return False
+
+    token = get_token_chatbot(id_config)
+    phone_number_id = get_phone_chatbot_id(id_config)  # ID del número en Meta
+
+    # Formatear la lista como se espera por la API de Meta
+    rows = []
+    for file in lists:
+        rows.append({
+            "id": file["id_file"],
+            "title": file["name_file"][:24],  # WhatsApp permite máx. 24 caracteres
+            "description": file["mimetype"]
+        })
+
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": phone,
+        "type": "interactive",
+        "interactive": {
+            "type": "list",
+            "header": {
+                "type": "text",
+                "text": "Firma de documentos"
+            },
+            "body": {
+                "text": message
+            },
+            "footer": {
+                "text": "Hoktus"
+            },
+            "action": {
+                "button": "Ver documentos",
+                "sections": [
+                    {
+                        "title": "Documentos disponibles",
+                        "rows": rows
+                    }
+                ]
+            }
+        }
+    }
+
+    # Enviar el mensaje a WhatsApp Cloud API
+    url_meta = f'https://graph.facebook.com/v21.0/{phone_number_id}/messages'
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {token}'
+    }
+
+    response = requests.post(url_meta, headers=headers, json=payload)
+
+    if 200 <= response.status_code < 300:
+        print("✅ Lista enviada correctamente:", response.text)
+        return True
+    else:
+        print("❌ Error al enviar la lista interactiva:", response.status_code)
+        print("🔴 Detalle:", response.text)
+        return False
+
 #-------------------- Extra Functions ----------------------------
 def generate_random_id_upper(length):
     """ Generate a random uppercase ID with digits of specified length. """
