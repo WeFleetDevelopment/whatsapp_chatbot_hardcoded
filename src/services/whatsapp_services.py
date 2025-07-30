@@ -449,7 +449,7 @@ def send_lists_files_user(id_config, phone, message, lists):
             "type": "list",
             "header": {
                 "type": "text",
-                "text": "Firma de documentos"
+                "text": "Documentos disponibles"
             },
             "body": {
                 "text": message
