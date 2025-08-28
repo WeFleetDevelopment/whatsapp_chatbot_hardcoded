@@ -73,7 +73,7 @@ def webhook_whatsapp():
        verify_token = token_verified
        print("Token de verificación:", verify_token)
 
-       if request.args.get("hub.verify_token") == 'sdasdadadad':
+       if request.args.get("hub.verify_token") == verify_token:
            challenge = request.args.get("hub.challenge")
            if challenge:
                return challenge, 200, {"Content-Type": "text/plain"} 
