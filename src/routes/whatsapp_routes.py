@@ -274,15 +274,15 @@ def send_message():
     data = request.json
     if "recipient" not in data or "message" not in data:
         return jsonify({"error": "El JSON debe contener 'recipient' y 'message'"}), 400
-    id_bot = data["id_config"]
+
     recipient = data["recipient"]
     message = data["message"] 
     try:   
-        print("Datos del mensaje recibido en endpoint send message", id_bot,recipient, message) 
+        print("Datos del mensaje recibido en endpoint send message",recipient, message) 
           
         #Obtener datos del chatbot a enviar mensaje
-        send_message_user(id_bot,message, recipient)
-        print("Mensaje enviado de Fletzy al usuario",id_bot, recipient, message)
+        send_message_user(message, recipient)
+        print("Mensaje enviado de Fletzy al usuario", recipient, message)
         return jsonify({"success": True, "message": f"Mensaje enviado correctamente al numero {recipient}"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500 
@@ -295,7 +295,6 @@ def send_file(type):
     if "recipient" not in data or "file_url" not in data:
         return jsonify({"error": "El JSON debe contener 'recipient' y 'file_url'"}), 400
     
-    id_bot = data["id_config"]
     recipient = data["recipient"] 
     file_url = data["file_url"]
     name_file = data["name_file"] 
@@ -304,14 +303,14 @@ def send_file(type):
     try:
         if type == "document":
             print("data document", data) 
-            send_document_user(id_bot,file_url, recipient, name_file)
+            send_document_user(file_url, recipient, name_file)
         elif type == "image":    
             print("data image", data) 
-            send_image_user(id_bot, file_url, recipient)
+            send_image_user(file_url, recipient)
   
         elif type == "audio": 
             print("data audio", data) 
-            send_audio_user(id_bot, file_url, recipient)
+            send_audio_user(file_url, recipient)
                   
         else:
             return jsonify({"error": "Tipo de archivo no soportado"}), 400
@@ -332,7 +331,6 @@ def send_list_message():
     if not all(k in data for k in required_keys):
         return jsonify({"error": "Faltan campos requeridos: 'id_config', 'phone', 'message', 'lists'"}), 400
 
-    id_config = data["id_config"]
     phone = data["phone"]
     title = data["title"]
     message = data["message"]
@@ -340,7 +338,7 @@ def send_list_message():
 
 
     try:
-        success = send_lists_files_user(id_config, phone,title, message, lists)
+        success = send_lists_files_user(phone,title, message, lists)
         if success:
             return jsonify({"status": "ok"}), 200
         else:

@@ -322,10 +322,10 @@ def get_phone_chatbot_id(id_bot):
 #-------------------------------------- Funciones para enviar mensajes a WhatsApp ---------------------------------
 
 # Function for Send message to user
-def send_message_user(id_bot, message, recipient):
+def send_message_user(message, recipient):
     # 1- Obtener el token de la empresa mediante el id_bot
-    token = get_token_chatbot(id_bot)
-    phone_send = get_phone_chatbot_id(id_bot)
+    token = tokenChatbot
+    phone_send = phoneSend
     print("Token obtenido:", token)
     print("Id del teléfono:", phone_send)
     print("Mensaje a enviar:", message)
@@ -342,11 +342,11 @@ def send_message_user(id_bot, message, recipient):
 
 
 # Function for send document to user
-def send_document_user(id_bot, file_url, recipient, name_file):
+def send_document_user(file_url, recipient, name_file):
     
     #1- Obtener token de la empresa mediante el id_bot
-    token =  get_token_chatbot(id_bot)
-    phone_send =  get_phone_chatbot_id(id_bot)  
+    token =  tokenChatbot
+    phone_send =  phoneSend 
     url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages' 
 
     #2- Enviar el documento al usuario
@@ -361,11 +361,11 @@ def send_document_user(id_bot, file_url, recipient, name_file):
   
  
 # Funcion para enviar imagen al usuario
-def send_image_user(id_bot, file_url, recipient):
+def send_image_user(file_url, recipient):
 
     #1- Obtener token de la empresa mediante el id_bot
-    token =   get_token_chatbot(id_bot)
-    phone_send =  get_phone_chatbot_id(id_bot)
+    token = tokenChatbot
+    phone_send =  phoneSend
     url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages'
 
     print("Token obtenido:", token)
@@ -383,11 +383,11 @@ def send_image_user(id_bot, file_url, recipient):
 
 
 # Funcion para enviar audio al usuario
-def send_audio_user(id_bot, file_url, recipient):
+def send_audio_user(file_url, recipient):
 
     #1- Obtener token de la empresa mediante el id_bot
-    token =  get_token_chatbot(id_bot)
-    phone_send =  get_phone_chatbot_id(id_bot)
+    token =  tokenChatbot
+    phone_send =  phoneSend
     url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages'
  
     #2- Enviar el audio al usuario
@@ -401,12 +401,11 @@ def send_audio_user(id_bot, file_url, recipient):
 
 
 # Funcion para enviar lista de archivos al usuario
-def send_lists_files_user(id_config, phone,title, message, lists):
+def send_lists_files_user(phone,title, message, lists):
     """
     Envía una lista de archivos al usuario a través de WhatsApp API.
 
     Parámetros:
-    - id_config: ID de configuración del bot.
     - phone: Número del destinatario (formato internacional).
     - message: Cuerpo del mensaje (body).
     - lists: Lista de archivos [{id_file, name_file, mimetype, ...}]
@@ -414,12 +413,10 @@ def send_lists_files_user(id_config, phone,title, message, lists):
     print("📤 Enviando archivos como lista interactiva a:", phone)
 
     # Validar configuración y obtener credenciales
-    if not validate_business_chatbot(id_config):
-        print("❌ Configuración de bot no válida:", id_config)
-        return False
 
-    token = get_token_chatbot(id_config)
-    phone_number_id = get_phone_chatbot_id(id_config)  # ID del número en Meta
+
+    token = tokenChatbot
+    phone_number_id = idNumberPhone
 
     # Formatear la lista como se espera por la API de Meta
     rows = []
