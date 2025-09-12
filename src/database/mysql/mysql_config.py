@@ -1,3 +1,4 @@
+# Configuración de la base de datos MySQL para SQLAlchemy en una aplicación Flask
 from flask_sqlalchemy import SQLAlchemy
 import os
 

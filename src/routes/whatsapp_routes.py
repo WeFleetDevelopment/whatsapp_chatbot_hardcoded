@@ -41,7 +41,7 @@ file_types = {
 
 
 
-# Ruta para recibir mensajes / 
+# Ruta para recibir mensajes de meta con los chatbots 
 @whatsapp_routes.route("/whatsapp/webhook", methods=["POST", "GET"])
 def webhook_whatsapp():
     # Imprime todo el cuerpo de la solicitud
@@ -91,7 +91,7 @@ def webhook_whatsapp():
     phone_number_id = data['entry'][0]['changes'][0]['value']['metadata']['phone_number_id']
     print(f"🔍 ID del número receptor (phone_number_id): {phone_number_id}")
    
-    # ✅ Validar que el número del mensaje corresponde con el id_config usado
+    # - Validar que el número del mensaje corresponde con el id_config usado
     phone_number_expected = get_phone_chatbot_id(id_bot)
     if phone_number_id != phone_number_expected:
        print(f"❌ ID del número recibido ({phone_number_id}) no corresponde con el ID esperado para este bot ({phone_number_expected}). Ignorando mensaje.")
@@ -127,7 +127,7 @@ def webhook_whatsapp():
             # Capturar mensajes con Formularios interactivos
             if message_type == "interactive":
                 try:
-                    # ✅ Obtener los datos correctamente
+                    # - Obtener los datos correctamente
                     message_received = get_interactive_response(data)
 
                     if message_received:  # Verificar si el mensaje recibido no está vacío
@@ -138,14 +138,14 @@ def webhook_whatsapp():
                        form_data_dict = json.loads(response_json_str)  # Convertimos a JSON
                        form_name = form_data_dict.get("form_name", "UNKNOWN_FORM_NAME")  # Extraer nombre del formulario
 
-                       # ✅ Imprimir los datos extraídos en consola para depuración
+                       # - Imprimir los datos extraídos en consola para depuración
                        print(f"📝 Nombre del formulario recibido: {form_name}")
                        print(f"📲 Número de usuario: {mobile}")
                        print(f"🆔 ID del bot: {id_bot}")
                        print(f"🔍 Datos del formulario:")
                        print(json.dumps(form_data_dict, indent=4))
 
-                       # ✅ Enviar los datos a `send_forms_to_save`
+                       # - Enviar los datos a `send_forms_to_save`
                        send_forms_to_save(id_bot, mobile, form_data_dict, form_name)
 
                 except Exception as e:
@@ -351,7 +351,7 @@ def send_list_message():
 
 #------------------------- Rutas para la comunicacion del servidor que guardara y enviara los mensajes --------------- #
 
-# Ruta para obtener el usuario y la plantilla de mensaje para enviarle el mensaje de plantilla al usuario
+# Ruta para enviar mensaje de plantilla al usuario
 @whatsapp_routes.route("/whatsapp/send_template_message", methods=["POST"])
 def route_send_template_message():
     data = request.json
@@ -368,14 +368,13 @@ def route_send_template_message():
     print("Datos del usuario userData", userData)
     print("Datos del mensaje messageData", messageData)
 
-    id_config = userData['id_config']  
     recipient = userData['phone']      
     template_name = messageData['template_name'] 
     template_parameters = messageData['template_parameters']  
     template_type = messageData['template_type']  
     template_parameters_buttons = messageData.get('template_parameters_buttons', [])
 
-    # 🔹 1️⃣ Verificar si la plantilla es "marketing_2" para agregar la imagen de prueba
+    # 🔹 1- Verificar si la plantilla es "marketing_2" para agregar la imagen de prueba
     url_image = None
     if template_name == "marketing_2":
         url_image = "https://firebasestorage.googleapis.com/v0/b/fletzy-page-prod.appspot.com/o/Fletzy-imgs%2FLogo%20Instagram%20Hoktus%20(1).png?alt=media&token=cb9f6c15-93e7-4934-8e7e-3897dd80659b"
@@ -385,7 +384,6 @@ def route_send_template_message():
     try:
         
         response = send_template_message_user(
-            id_config,
             recipient,
             template_name,
             template_parameters,
