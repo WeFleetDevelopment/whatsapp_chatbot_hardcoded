@@ -272,18 +272,18 @@ def webhook_whatsapp():
 @whatsapp_routes.route("/whatsapp/send_message", methods=["POST"])
 def send_message():
     data = request.json
-    if "recipient" not in data or "message" not in data:
-        return jsonify({"error": "El JSON debe contener 'recipient' y 'message'"}), 400
+    if "phone_user" not in data or "message" not in data:
+        return jsonify({"error": "El JSON debe contener 'phone_user' y 'message'"}), 400
 
-    recipient = data["recipient"]
+    phone_user = data["phone_user"]
     message = data["message"] 
     try:   
-        print("Datos del mensaje recibido en endpoint send message",recipient, message) 
+        print("Datos del mensaje recibido en endpoint send message",phone_user, message) 
           
         #Obtener datos del chatbot a enviar mensaje
-        send_message_user(message, recipient)
-        print("Mensaje enviado de Fletzy al usuario", recipient, message)
-        return jsonify({"success": True, "message": f"Mensaje enviado correctamente al numero {recipient}"}), 200
+        send_message_user(message, phone_user)
+        print("Mensaje enviado de Fletzy al usuario", phone_user, message)
+        return jsonify({"success": True, "message": f"Mensaje enviado correctamente al numero {phone_user}"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500 
   
