@@ -325,11 +325,11 @@ def get_phone_chatbot_id(id_bot):
 def send_message_user(message, recipient):
     # 1- Obtener el token de la empresa mediante el id_bot
     token = tokenChatbot
-    phone_send = phoneSend
+    id_phone_send = idNumberPhone
     print("Token obtenido:", token)
-    print("Id del teléfono:", phone_send)
+    print("Id del teléfono:", id_phone_send)
     print("Mensaje a enviar:", message)
-    url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages'
+    url_chatbot = f'https://graph.facebook.com/v21.0/{id_phone_send}/messages'
 
     # 2- Enviar el mensaje al usuario
     response = send_message(token, url_chatbot, message, recipient)
@@ -346,8 +346,8 @@ def send_document_user(file_url, recipient, name_file):
     
     #1- Obtener token de la empresa mediante el id_bot
     token =  tokenChatbot
-    phone_send =  phoneSend 
-    url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages' 
+    id_phone_send = idNumberPhone
+    url_chatbot = f'https://graph.facebook.com/v21.0/{id_phone_send}/messages' 
 
     #2- Enviar el documento al usuario
 
@@ -365,11 +365,11 @@ def send_image_user(file_url, recipient):
 
     #1- Obtener token de la empresa mediante el id_bot
     token = tokenChatbot
-    phone_send =  phoneSend
-    url_chatbot = f'https://graph.facebook.com/v21.0/{phone_send}/messages'
+    id_phone_send = idNumberPhone
+    url_chatbot = f'https://graph.facebook.com/v21.0/{id_phone_send}/messages'
 
     print("Token obtenido:", token)
-    print("Id del teléfono:", phone_send)
+    print("Id del teléfono:", id_phone_send)
     print("Url de la imagen:", file_url)  
 
     #2- Enviar la imagen al usuario
